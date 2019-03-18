@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "fd9430b865dd80882a9e69ab394f9ccc",
+    "content-hash": "c4604db9532a58a8c0c59d2e2f01b043",
     "packages": [
         {
             "name": "clue/stream-filter",
@@ -827,6 +827,54 @@
             ],
             "description": "Highlight PHP code in terminal",
             "time": "2018-09-29T18:48:56+00:00"
+        },
+        {
+            "name": "kuangjy/omnipay-qpay",
+            "version": "v3.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/kuangjy2/omnipay-qpay.git",
+                "reference": "38ea513f4d61b7231acc3a2f1e522ac1b540811a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/kuangjy2/omnipay-qpay/zipball/38ea513f4d61b7231acc3a2f1e522ac1b540811a",
+                "reference": "38ea513f4d61b7231acc3a2f1e522ac1b540811a",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://dl.laravel-china.org/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "omnipay/common": "^3",
+                "php-http/guzzle6-adapter": "*"
+            },
+            "require-dev": {
+                "omnipay/tests": "^3",
+                "squizlabs/php_codesniffer": "^3.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\QPay\\": "src/",
+                    "Omnipay\\QPay\\Tests\\": "tests/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kuang Jiaye",
+                    "email": "kuangjy@qq.com"
+                }
+            ],
+            "description": "QPay(QQ Wallet) driver for the Omnipay PHP payment processing library",
+            "time": "2019-03-17T08:57:08+00:00"
         },
         {
             "name": "laravel/framework",
