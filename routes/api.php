@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
 /*
@@ -16,3 +17,9 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// 下单
+Route::post('/order', 'OrderController@store');
+
+// 支付订单
+Route::post('/order/{id}/pay', 'PayController@store')->where('id', '[0-9]+');
