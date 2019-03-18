@@ -31,8 +31,8 @@ class Order
             ->where(Recharge::ORDER_NO, data_get($data, Recharge::ORDER_NO))
             ->first();
 
-        if ($recharge->id) {
-            throw new TradeNoUsedExceptionAlias();
+        if ($recharge && $recharge->id) {
+//            throw new TradeNoUsedExceptionAlias();
         } else {
             $recharge = Recharge::create($data);
         }

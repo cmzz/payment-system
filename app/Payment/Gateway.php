@@ -20,7 +20,7 @@ class Gateway
         $cs = strtolower($channel);
         $conf = config('app.payment.gateways');
 
-        if (Str::start($cs, 'qpay_')) {
+        if (Str::startsWith($cs, 'qpay_')) {
             $gateway = Omnipay::create($channel);
 
             $gateway->setAppId(data_get($conf, 'qpay.app_id'));
@@ -29,7 +29,7 @@ class Gateway
             $gateway->setApiKey(data_get($conf, 'qpay.api_key'));
 
             return $gateway;
-        } elseif (Str::start($cs, 'alipay_')) {
+        } elseif (Str::startsWith($cs, 'alipay_')) {
             $gateway = Omnipay::create($channel);
 
             $gateway->setSignType(data_get($conf, 'alipay.sign_type')); //RSA/RSA2
@@ -40,7 +40,7 @@ class Gateway
             $gateway->setReturnUrl(route('return_url'));
 
             return $gateway;
-        } elseif (Str::start($cs, 'wx_')) {
+        } elseif (Str::startsWith($cs, 'wx_')) {
             $gateway = Omnipay::create($channel);
 
             $gateway->setAppId(data_get($conf, 'wx.app_id'));
