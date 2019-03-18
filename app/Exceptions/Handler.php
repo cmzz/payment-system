@@ -4,6 +4,11 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class Handler extends ExceptionHandler
 {
@@ -29,8 +34,9 @@ class Handler extends ExceptionHandler
     /**
      * Report or log an exception.
      *
-     * @param  \Exception  $exception
+     * @param  \Exception $exception
      * @return void
+     * @throws Exception
      */
     public function report(Exception $exception)
     {
@@ -46,6 +52,49 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        return parent::render($request, $exception);
+        Log::error(
+            'ExceptionHandler',
+            [
+                'url' => $request->fullUrl(),
+                'exception' => (string)$exception,
+                'request' => (array)$request->getContent()
+            ]
+        );
+
+        $message = $exception->getMessage();
+        $code = $exception->getCode() > 0 ? $exception->getCode() : ErrorCodes::INTERNAL_ERROR;
+
+        if ($exception instanceof ValidationException) {
+            $statusCode = 200;
+            $code = ErrorCodes::INVALID_ARGUMENT_ERROR;
+            $message = sprintf(
+                'The given data was invalid. (%s)',
+                implode(' ', array_keys($exception->errors()))
+            );
+        } elseif ($exception instanceof ModelNotFoundException) {
+            $statusCode = 200;
+            $code = ErrorCodes::RECORD_NOT_FOUND;
+            $message = 'No query results';
+        } else {
+            switch ($statusCode = $this->getStatusCode($exception)) {
+                case 404:
+                    $message = 'Not found';
+            }
+        }
+
+        $data = [
+            'request_id' => request()->requestId,
+            'code' => $code,
+            'status_code' => $orgStatusCode ?? $statusCode,
+            'message' => $message,
+        ];
+
+        return response()->json($data, $statusCode);
+    }
+
+    protected function getStatusCode(Exception $exception)
+    {
+        return $exception instanceof HttpExceptionInterface ?
+            $exception->getStatusCode() : Response::HTTP_INTERNAL_SERVER_ERROR;
     }
 }
