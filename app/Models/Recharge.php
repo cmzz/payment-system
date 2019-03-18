@@ -71,4 +71,9 @@ class Recharge extends Model
         self::CREATED_AT,
         self::UPDATED_AT,
     ];
+
+    public function getCentAmount(): float
+    {
+        return $this->attributes[self::AMOUNT] * 0.01;
+    }
 }

@@ -2,6 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Exceptions\InvalidArgumentException;
+use App\Models\Recharge;
+use App\Types\Channel;
 use Illuminate\Foundation\Http\FormRequest;
 
 class NewOrderRequest extends FormRequest
@@ -11,7 +14,9 @@ class NewOrderRequest extends FormRequest
     const CLIENT_IP = 'client_ip';
     const CURRENCY = 'currency';
     const SUBJECT = 'subject';
+    const CHANNEL = 'channel';
     const BODY = 'body';
+    const APP_ID = 'app_id';
 
     /**
      * Determine if the user is authorized to make this request.
@@ -35,15 +40,51 @@ class NewOrderRequest extends FormRequest
             self::AMOUNT => 'required|numeric|integer|min:1',
             self::CLIENT_IP => 'required|ipv4',
             self::CURRENCY => 'required|string',
+            self::CHANNEL => 'required|string',
             self::SUBJECT => 'required|string|min:2',
         ];
     }
 
-    public function getAmount(): int
+    private function getAmount(): int
     {
-        $amount = request()->get(self::AMOUNT, 0);
-        if ($amount < 1) {
+        $amount = $this->get(self::AMOUNT, 0);
 
+        if ($amount < 1) {
+            throw new InvalidArgumentException();
         }
+
+        return $amount;
+    }
+
+    private function getChannel(): string
+    {
+        $channel = $this->get(self::CHANNEL);
+
+        if (!in_array($channel, Channel::names())) {
+            throw new InvalidArgumentException();
+        }
+
+        return $channel;
+    }
+
+    private function getCurrency(): string
+    {
+        return 'cny';
+    }
+
+    public function getAll()
+    {
+        $data = [
+            Recharge::ORDER_NO => $this->get(self::ORDER_NO, 0),
+            Recharge::AMOUNT => $this->getAmount(),
+            Recharge::CHANNEL => $this->getChannel(),
+            Recharge::CURRENCY => $this->getCurrency(),
+            Recharge::CLIENT_IP => $this->get(self::CLIENT_IP),
+            Recharge::SUBJECT => $this->get(self::SUBJECT),
+            Recharge::BODY => $this->get(self::BODY),
+            Recharge::APP_ID => current_app_id(),
+        ];
+
+        return $data;
     }
 }

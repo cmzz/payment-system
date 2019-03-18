@@ -26,7 +26,6 @@ class CreateRechargesTable extends Migration
             $table->string('body')->nullable()->comment('商品描述信息，该参数最长为 200 个 Unicode 字符。');
             $table->string('extra')->nullable()->comment('特定渠道发起交易时需要的额外参数，以及部分渠道支付成功返回的额外参数');
             $table->string('channel')->nullable()->comment('支付渠道');
-            $table->string('payment_platform')->nullable()->comment('支付平台，区分第三方支付平台');
             $table->integer('pay_status')->nullable()->comment('订单的支付状态');
             $table->integer('refund_status')->nullable()->comment('订单的退款状态');
             $table->string('refund_reason', 512)->nullable()->comment('退款理由');
@@ -43,6 +42,8 @@ class CreateRechargesTable extends Migration
             $table->char('currency', 20)->nullable()->default('cny')->comment('3 位 ISO 货币代码，小写字母，默认人民币为 cny。');
             $table->float('fee_rate', 10, 2)->nullable()->comment('第三方支付平台费率');
             $table->decimal('fee', 10, 2)->nullable()->comment('第三方支付平台扣费');
+            $table->string('pre_order_id')->nullable()->comment('支付平台与支付订单号');
+            $table->string('once_str')->nullable()->comment('支付平台一次性字符串');
 
             $table->softDeletes();
             $table->timestamps();

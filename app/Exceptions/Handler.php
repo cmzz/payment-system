@@ -63,16 +63,17 @@ class Handler extends ExceptionHandler
 
         $message = $exception->getMessage();
         $code = $exception->getCode() > 0 ? $exception->getCode() : ErrorCodes::INTERNAL_ERROR;
+        $statusCode = $this->getStatusCode($exception);
 
         if ($exception instanceof ValidationException) {
-            $statusCode = 200;
+            $statusCode = 400;
             $code = ErrorCodes::INVALID_ARGUMENT_ERROR;
             $message = sprintf(
                 'The given data was invalid. (%s)',
                 implode(' ', array_keys($exception->errors()))
             );
         } elseif ($exception instanceof ModelNotFoundException) {
-            $statusCode = 200;
+            $statusCode = 500;
             $code = ErrorCodes::RECORD_NOT_FOUND;
             $message = 'No query results';
         } else {
