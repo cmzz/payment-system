@@ -75,7 +75,8 @@ class NewOrderRequest extends FormRequest
     public function getAll()
     {
         $data = [
-            Recharge::ORDER_NO => $this->get(self::ORDER_NO, 0),
+//            Recharge::ORDER_NO => $this->get(self::ORDER_NO, 0),
+            Recharge::ORDER_NO => date('YmdHis') . mt_rand(1000, 9999),
             Recharge::AMOUNT => $this->getAmount(),
             Recharge::CHANNEL => $this->getChannel(),
             Recharge::CURRENCY => $this->getCurrency(),

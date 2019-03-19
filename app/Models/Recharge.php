@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Recharge extends Model
 {
@@ -18,7 +19,7 @@ class Recharge extends Model
     const EXTRA = 'extra';
     const CHANNEL = 'channel';
     const PAYMENT_PLATFORM = 'payment_platform';
-    const PAY_STATUS = 'pay_status';
+    const STATUS = 'status';
     const REFUND_STATUS = 'refund_status';
     const REFUND_REASON = 'refund_reason';
     const PAID = 'paid';
@@ -51,7 +52,7 @@ class Recharge extends Model
         self::EXTRA,
         self::CHANNEL,
         self::PAYMENT_PLATFORM,
-        self::PAY_STATUS,
+        self::STATUS,
         self::REFUND_STATUS,
         self::REFUND_REASON,
         self::PAID,
@@ -72,8 +73,28 @@ class Recharge extends Model
         self::UPDATED_AT,
     ];
 
+    public function app()
+    {
+        return $this->belongsTo(App::class);
+    }
+
     public function getCentAmount(): float
     {
         return $this->attributes[self::AMOUNT] * 0.01;
+    }
+
+    public function isAlipay(): bool
+    {
+        return Str::startsWith(strtolower($this->attributes[self::CHANNEL]), 'alipay_');
+    }
+
+    public function isWx(): bool
+    {
+        return Str::startsWith(strtolower($this->attributes[self::CHANNEL]), 'wx_');
+    }
+
+    public function isQpay(): bool
+    {
+        return Str::startsWith(strtolower($this->attributes[self::CHANNEL]), 'qpay_');
     }
 }

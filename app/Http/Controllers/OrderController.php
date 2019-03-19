@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateOrderRequest;
 use App\Http\Requests\NewOrderRequest;
 use App\Http\Requests\QueryOrderRequest;
+use App\Payment\Gateway;
 use App\Payment\Order;
 use App\Response;
 
@@ -21,16 +22,19 @@ class OrderController extends Controller
      * 下单
      * @param NewOrderRequest $request
      * @return \Illuminate\Http\JsonResponse
-     * @throws \App\Exceptions\TradeNoUsedException
      * @throws \App\Exceptions\UndefinedChannelException
      */
     public function store(NewOrderRequest $request)
     {
         $data = $request->getAll();
 
-        $this->order->create($data);
+        $recharge = $this->order->create($data);
 
-        return Response::successData($request->all());
+        $rspData = (new Gateway())
+            ->setRecharge($recharge)
+            ->preOrder();
+
+        return Response::successData($rspData);
     }
 
     /**

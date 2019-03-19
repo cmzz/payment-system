@@ -6,23 +6,20 @@ declare(strict_types=1);
 namespace App\Payment;
 
 
+use App\Events\OrderPaidEvent;
 use App\Exceptions\TradeNoUsedException as TradeNoUsedExceptionAlias;
 use App\Models\Recharge;
+use App\Types\OrderStatus;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Omnipay\Omnipay;
 
 class Order
 {
-    public function __construct()
-    {
-
-    }
-
     /**
      * @param array $data
      * @return mixed
-     * @throws TradeNoUsedExceptionAlias
-     * @throws \App\Exceptions\UndefinedChannelException
      */
     public function create(array $data)
     {
@@ -36,25 +33,6 @@ class Order
         } else {
             $recharge = Recharge::create($data);
         }
-
-        $data = [
-            'subject'      => $recharge->{Recharge::SUBJECT},
-            'body'      => $recharge->{Recharge::BODY},
-            'out_trade_no' => $recharge->{Recharge::ID},
-            'total_amount' => $recharge->getCentAmount(),
-            'product_code' => 'FAST_INSTANT_TRADE_PAY',
-            'total_fee'         => 1,
-            'spbill_create_ip'  => $recharge->{Recharge::CLIENT_IP},
-            'fee_type'          => $recharge->{Recharge::CURRENCY},
-            'notify_url' => route('notify_url'),
-            'return_url' => route('return_url'),
-        ];
-
-        // 支付平台预下单
-        $gateway = Gateway::get($recharge->{Recharge::CHANNEL});
-
-        $response = $gateway->purchase($data)->send();
-        dd($response);
 
         return $recharge;
     }
@@ -74,8 +52,26 @@ class Order
 
     }
 
-    public function paid()
+    public function paid(Recharge $recharge, array $params)
     {
+        DB::transaction(function () use ($recharge, $params) {
+            $t = new Carbon();
 
+            $recharge = Recharge::where(Recharge::ID, $recharge->id)->lockForUpdate()->get();
+            if ($recharge->{Recharge::PAID} != 1) {
+                DB::tables('recharges')->where(Recharge::ID, $recharge->{Recharge::ID})
+                    ->update([
+                        $recharge->{Recharge::TRANSACTION_NO} => data_get($params, 'trade_no'),
+                        $recharge->{Recharge::TRANSACTION_ORG_DATA} => \GuzzleHttp\json_encode($params),
+                        $recharge->{Recharge::PAID} => 1,
+                        $recharge->{Recharge::PAY_AT} => $t,
+                        $recharge->{Recharge::STATUS} => OrderStatus::PAID,
+                        $recharge->{Recharge::UPDATED_AT} => $t,
+                        $recharge->{Recharge::BUYER_ID} => data_get($params, 'buyer_id', ''),
+                    ]);
+
+                event(new OrderPaidEvent($recharge->{Recharge::ID}));
+            }
+        });
     }
 }
