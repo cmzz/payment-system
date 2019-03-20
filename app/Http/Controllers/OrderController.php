@@ -33,6 +33,10 @@ class OrderController extends Controller
     public function store(NewOrderRequest $request)
     {
         $data = $request->getAll();
+        \Log::channel('order')->info('创建订单', [
+            'params' => $data
+        ]);
+
         $recharge = $this->order->create($data);
 
         try {

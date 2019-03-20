@@ -26,7 +26,7 @@ class CreateRechargesTable extends Migration
             $table->string('body')->nullable()->comment('商品描述信息，该参数最长为 200 个 Unicode 字符。');
             $table->string('extra')->nullable()->comment('特定渠道发起交易时需要的额外参数，以及部分渠道支付成功返回的额外参数');
             $table->string('channel')->nullable()->comment('支付渠道');
-            $table->integer('pay_status')->nullable()->comment('订单的支付状态');
+            $table->integer('status')->nullable()->comment('订单的状态');
             $table->integer('refund_status')->nullable()->comment('订单的退款状态');
             $table->string('refund_reason', 512)->nullable()->comment('退款理由');
             $table->integer('paid')->nullable()->comment('是否付款');

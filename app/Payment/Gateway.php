@@ -102,18 +102,42 @@ class Gateway
         try {
             $response = $request->send();
         } catch (\Exception $e) {
+            \Log::channel('order')->error('预下单请求发送失败', [
+                'recharge' => $this->recharge,
+                'request_data' => $request->getData()
+            ]);
+
             throw new PaymentRequestException();
         }
 
         if ($response->isSuccessful()) {
+            \Log::channel('order')->info('预下单成功', [
+                'recharge' => $this->recharge,
+                'request_data' => $request->getData(),
+                'response_data' => $response->getData()
+            ]);
+
             $className = str_replace('_', '', $this->recharge->{Recharge::CHANNEL});
             $responseBuilder = "\\App\\Payment\\ResponseDataBuilder\\" . $className;
 
             /** @var ResponseDataBuilderInterface $build */
             $builder = new $responseBuilder($this->recharge, $response);
 
-            return $builder->getData();
+            $prepayData = $builder->getData();
+            \Log::channel('order')->info('预下单成功，返回数据到应用', [
+                'recharge' => $this->recharge,
+                'response_data' => $response->getData(),
+                'data' => $prepayData
+            ]);
+
+            return $prepayData;
         } else {
+            \Log::channel('order')->error('预下单失败', [
+                'recharge' => $this->recharge,
+                'request_data' => $request->getData(),
+                'response_data' => $response->getData()
+            ]);
+
             throw new PreOrderFailedException();
         }
     }
@@ -126,12 +150,12 @@ class Gateway
         try {
             $response = $request->send();
 
-            if($response->isPaid()){
+            if ($response->isPaid()) {
                 (new Order)->paid($this->recharge, $params);
 
                 return response('success', 200)
                     ->header('Content-Type', 'text/plain');
-            }else{
+            } else {
                 return response('fail', 200)
                     ->header('Content-Type', 'text/plain');
             }
