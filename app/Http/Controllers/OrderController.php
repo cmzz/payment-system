@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateOrderRequest;
 use App\Http\Requests\NewOrderRequest;
 use App\Http\Requests\QueryOrderRequest;
 use App\Payment\Gateway;
@@ -41,6 +40,7 @@ class OrderController extends Controller
 
     /**
      * 查询订单
+     * @param QueryOrderRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function search(QueryOrderRequest $request)

@@ -10,7 +10,6 @@ use App\Exceptions\UndefinedChannelException;
 use App\Models\Recharge;
 use App\Payment\ResponseDataBuilder\ResponseDataBuilderInterface;
 use Illuminate\Http\Response;
-use Illuminate\Support\Str;
 use Omnipay\Common\GatewayInterface;
 use Omnipay\Common\Message\RequestInterface;
 use Omnipay\Common\Message\ResponseInterface;
@@ -78,6 +77,7 @@ class Gateway
     {
         $this->recharge = $recharge;
         $this->initGateway();
+
         return $this;
     }
 
@@ -94,11 +94,8 @@ class Gateway
             $request = $this->gateway->purchase()->setBizContent(PreOrderData::build($this->recharge));
         }
 
-        if ($this->recharge->isWechatPay()) {
-            $request = $this->gateway->purchase(PreOrderData::build($this->recharge));
-        }
-
-        if ($this->recharge->isQpay()) {
+        if ($this->recharge->isWechatPay() ||
+            $this->recharge->isQpay()) {
             $request = $this->gateway->purchase(PreOrderData::build($this->recharge));
         }
 
@@ -107,8 +104,6 @@ class Gateway
         } catch (\Exception $e) {
             throw new PaymentRequestException();
         }
-
-        dump($response->getData());
 
         if ($response->isSuccessful()) {
             $className = str_replace('_', '', $this->recharge->{Recharge::CHANNEL});
@@ -119,8 +114,6 @@ class Gateway
 
             return $builder->getData();
         } else {
-            dump($request->getData());
-
             throw new PreOrderFailedException();
         }
     }
