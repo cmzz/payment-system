@@ -42,6 +42,8 @@
 - [ ] 管理面板
     - 管理面板前段页面
     - 管理面板后端接口
+- [ ] 客户端SDK
+- [ ] 文档编写
 
 ## 使用教程
 1. 项目配置
@@ -60,13 +62,8 @@
 ## 最佳实践
 
 
+
 ## 工具命令
-
-
-## 本地开发
-
-建议使用 laradock 开发本项目
-
 
 
 ## 项目依赖
@@ -75,3 +72,89 @@
 - mysql >= 5.7
 - redis
 - composer 
+
+## 本地开发
+
+推荐使用 [Laradock](https://github.com/laradock/laradock) 作为开发环境。
+
+推荐的配置步骤如下：
+
+1. 在你的工作目录，配置 Laradock
+```bash
+git clone --branch member git@github.com:laradock/laradock.git
+```
+
+2. 修改 `laradock/.env` 配置文件
+
+修改映射目录为自己的真实项目目录 `APP_CODE_PATH_HOST = YourSelf Application Path`
+
+修改 MYSQL 版本为 5.7 `MYSQL_VERSION=5.7`
+
+为了节省编译时间且在不需要使用前端的情况下，可以取消node，yarn的安装
+
+```
+WORKSPACE_INSTALL_NODE = false
+WORKSPACE_INSTALL_YARN = false
+```
+
+其他的参数调整都是可选的，具体可参考文档 [relevant](https://docs.docker.com/compose/compose-file/compose-file-v2/) [documentations](http://laradock.io/documentation/) 
+
+3. 运行 docker 容器
+
+通过下面的命令来构建容器和启动容器:
+
+```bash
+docker-compose up -d mysql redis workspace nginx rabbitmq
+```
+
+如果容器没有正常启动，可以去掉 `-d` 参数，并查看控制台输出的日志以确定原因。
+ 
+停止容器: 
+```bash
+docker-compose down
+```
+
+4. 通过 Compose 安装依赖
+
+所有的依赖都是通过 Composer 来管理的，通过下面的命令来安装：
+
+```bash
+docker exec -it laradock_workspace_1 bash
+```
+
+然后执行:
+
+```bash
+composer install
+```
+
+5. 修改 `.env` 文件
+
+在项目根目录 `.env` 文件为项目的配置文件，可以从`.env.example`复制后进行修改：
+
+```bash
+cp .env.example .env
+```
+
+可能需要修改项目的关键配置，例如 mysql 相关的配置修改如下：
+
+``` 
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=YourSelf Database
+DB_USERNAME=root
+DB_PASSWORD=root
+```
+
+6. 初始化项目
+
+在 workspace 容器中，执行下列命令：
+
+```bash
+php artisan key:generate
+php artisan migrate
+php artisan db:seed
+```
+
+欢迎贡献、共同完善！
