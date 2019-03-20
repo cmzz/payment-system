@@ -1,25 +1,23 @@
 <?php
-
 declare(strict_types=1);
-
 
 namespace App\Payment;
 
-
 use App\Events\OrderPaidEvent;
-use App\Exceptions\TradeNoUsedException as TradeNoUsedExceptionAlias;
+use App\Exceptions\NotifyDataErrorException;
+use App\Exceptions\TradeNoUsedException;
 use App\Models\Recharge;
+use App\Types\OrderPayStatus;
 use App\Types\OrderStatus;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Omnipay\Omnipay;
 
 class Order
 {
     /**
      * @param array $data
      * @return mixed
+     * @throws TradeNoUsedException
      */
     public function create(array $data)
     {
@@ -29,8 +27,11 @@ class Order
             ->first();
 
         if ($recharge && $recharge->id) {
-//            throw new TradeNoUsedExceptionAlias();
+            throw new TradeNoUsedException();
         } else {
+            $data[Recharge::PAID] = OrderPayStatus::WAIT_PAY;
+            $data[Recharge::STATUS] = OrderStatus::WAIT_PAY;
+
             $recharge = Recharge::create($data);
         }
 
@@ -57,13 +58,28 @@ class Order
         DB::transaction(function () use ($recharge, $params) {
             $t = new Carbon();
 
+            $transactionNo = 0;
+            if ($recharge->isAlipay()) {
+                $transactionNo = data_get($params, 'trade_no');
+            }
+            if ($recharge->isWechatPay()) {
+                $transactionNo = data_get($params, 'transaction_id');
+            }
+            if ($recharge->isQpay()) {
+                $transactionNo = data_get($params, 'transaction_id');
+            }
+
+            if (!$transactionNo) {
+                throw new NotifyDataErrorException();
+            }
+
             $recharge = Recharge::where(Recharge::ID, $recharge->id)->lockForUpdate()->get();
-            if ($recharge->{Recharge::PAID} != 1) {
+            if ($recharge->{Recharge::PAID} != OrderPayStatus::PAID) {
                 DB::tables('recharges')->where(Recharge::ID, $recharge->{Recharge::ID})
                     ->update([
-                        $recharge->{Recharge::TRANSACTION_NO} => data_get($params, 'trade_no'),
+                        $recharge->{Recharge::TRANSACTION_NO} => $transactionNo,
                         $recharge->{Recharge::TRANSACTION_ORG_DATA} => \GuzzleHttp\json_encode($params),
-                        $recharge->{Recharge::PAID} => 1,
+                        $recharge->{Recharge::PAID} => OrderPayStatus::PAID,
                         $recharge->{Recharge::PAY_AT} => $t,
                         $recharge->{Recharge::STATUS} => OrderStatus::PAID,
                         $recharge->{Recharge::UPDATED_AT} => $t,

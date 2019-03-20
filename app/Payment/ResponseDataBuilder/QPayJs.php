@@ -6,8 +6,12 @@ namespace App\Payment\ResponseDataBuilder;
 
 class QPayJs extends ResponseDataBuilder
 {
+    use QpayTrait;
+
     protected function process()
     {
-        $this->data = [];
+        $this->savePreOrderId();
+
+        $this->data = ['order_data' => $this->response->getJsOrderData()];
     }
 }

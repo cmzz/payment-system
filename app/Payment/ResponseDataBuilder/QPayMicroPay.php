@@ -6,8 +6,12 @@ namespace App\Payment\ResponseDataBuilder;
 
 class QPayMicroPay extends ResponseDataBuilder
 {
+    use QpayTrait;
+
     protected function process()
     {
+        $this->savePreOrderId();
+
         $this->data = [];
     }
 }
