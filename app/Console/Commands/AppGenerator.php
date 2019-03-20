@@ -52,7 +52,7 @@ class AppGenerator extends Command
 
         App::create([
             App::USER_ID => $userId,
-            App::APP_KEY => mt_rand(1000000, '9999999'),
+            App::APP_KEY => mt_rand(1000000, 9999999),
             App::APP_SECRET => Str::random(32),
             App::TITLE => $title,
             App::DESCRIPTION => $description,
