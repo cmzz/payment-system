@@ -38,6 +38,8 @@ class Recharge extends Model
     const DELETED_AT = 'deleted_at';
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
+    const PREPAY_ID = 'prepay_id';
+    const NONCE_STR = 'NONCE_STR';
 
     protected $fillable = [
         self::ID,
@@ -71,6 +73,8 @@ class Recharge extends Model
         self::DELETED_AT,
         self::CREATED_AT,
         self::UPDATED_AT,
+        self::PREPAY_ID,
+        self::NONCE_STR,
     ];
 
     public function app()
@@ -90,7 +94,7 @@ class Recharge extends Model
 
     public function isWx(): bool
     {
-        return Str::startsWith(strtolower($this->attributes[self::CHANNEL]), 'wx_');
+        return Str::startsWith(strtolower($this->attributes[self::CHANNEL]), 'wechatpay_');
     }
 
     public function isQpay(): bool

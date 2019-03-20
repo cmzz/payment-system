@@ -42,8 +42,8 @@ class CreateRechargesTable extends Migration
             $table->char('currency', 20)->nullable()->default('cny')->comment('3 位 ISO 货币代码，小写字母，默认人民币为 cny。');
             $table->float('fee_rate', 10, 2)->nullable()->comment('第三方支付平台费率');
             $table->decimal('fee', 10, 2)->nullable()->comment('第三方支付平台扣费');
-            $table->string('pre_order_id')->nullable()->comment('支付平台与支付订单号');
-            $table->string('once_str')->nullable()->comment('支付平台一次性字符串');
+            $table->string('prepay_id')->nullable()->comment('支付平台与支付订单号');
+            $table->string('nonce_str')->nullable()->comment('支付平台一次性字符串');
 
             $table->softDeletes();
             $table->timestamps();

@@ -28,10 +28,11 @@ class PreOrderData
         if ($recharge->isWx()) {
             return $data = [
                 'body'      => $recharge->{Recharge::BODY},
-                'out_trade_no' => $recharge->{Recharge::ID},
+                'out_trade_no' => TradeNo::encode($recharge->{Recharge::APP_ID}, $recharge->{Recharge::ORDER_NO}, $recharge->{Recharge::ID}),
                 'total_fee'         => $recharge->{Recharge::AMOUNT},
                 'spbill_create_ip'  => $recharge->{Recharge::CLIENT_IP},
                 'fee_type'          => $recharge->{Recharge::CURRENCY},
+                'notify_url' => route('notify_url')
             ];
         }
 
@@ -39,7 +40,7 @@ class PreOrderData
             return $data = [
                 'attach'      => $recharge->{Recharge::SUBJECT},
                 'body'      => $recharge->{Recharge::BODY},
-                'out_trade_no' => $recharge->{Recharge::ID},
+                'out_trade_no' => TradeNo::encode($recharge->{Recharge::APP_ID}, $recharge->{Recharge::ORDER_NO}, $recharge->{Recharge::ID}),
                 'total_fee'         => $recharge->{Recharge::AMOUNT},
                 'spbill_create_ip'  => $recharge->{Recharge::CLIENT_IP},
                 'fee_type'          => $recharge->{Recharge::CURRENCY},
@@ -51,15 +52,15 @@ class PreOrderData
     static function getAlipayProductCode(string $channel): string
     {
         switch ($channel) {
-            case Channel::ALIPAY_PC:
+            case Channel::ALIPAY_AOPPAGE:
                 return 'FAST_INSTANT_TRADE_PAY';
-            case Channel::ALIPAY_WAP:
+            case Channel::ALIPAY_AOPWAP:
                 return 'QUICK_WAP_PAY';
-            case Channel::ALIPAY:
+            case Channel::ALIPAY_AOPAPP:
                 return 'QUICK_MSECURITY_PAY';
-            case Channel::ALIPAY_JS:
+            case Channel::ALIPAY_AOPJS:
                 return '';
-            case Channel::ALIPAY_F2F:
+            case Channel::ALIPAY_AOPF2F:
                 return '';
         }
     }

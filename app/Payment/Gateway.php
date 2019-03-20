@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Payment;
 
+use App\Exceptions\PreOrderFailedException;
 use App\Exceptions\UndefinedChannelException;
 use App\Models\Recharge;
-use App\Types\Channel;
+use App\Payment\ResponseDataBuilder\ResponseDataBuilderInterface;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 use Omnipay\Common\GatewayInterface;
+use Omnipay\Common\Message\ResponseInterface;
 use Omnipay\Omnipay;
 
 class Gateway
@@ -52,7 +54,7 @@ class Gateway
 
             $this->gateway = $gateway;
             return $this;
-        } elseif (Str::startsWith($cs, 'wx_')) {
+        } elseif (Str::startsWith($cs, 'wechatpay_')) {
             $gateway = Omnipay::create($channel);
 
             $gateway->setAppId(data_get($conf, 'wx.app_id'));
@@ -80,24 +82,25 @@ class Gateway
 
     public function preOrder(): array
     {
+        /** @var ResponseInterface $response */
         if ($this->recharge->isAlipay()) {
             $response = $this->gateway->purchase()->setBizContent(PreOrderData::build($this->recharge))->send();
-
-            switch ($this->recharge->{Recharge::CHANNEL}) {
-                case Channel::ALIPAY:
-                    return ['order_string' => $response->getOrderString()];
-                    break;
-                case Channel::ALIPAY_WAP:
-                case Channel::ALIPAY_PC:
-                    return ['redirect_url' => $response->getRedirectUrl()];
-                    break;
-            }
         }
 
         if ($this->recharge->isWx()) {
-            return [
+            $response = $this->gateway->purchase(PreOrderData::build($this->recharge))->send();
+        }
 
-            ];
+        if ($response->isSuccessful()) {
+            $className = str_replace('_', '', $this->recharge->{Recharge::CHANNEL});
+            $responseBuilder = "\\App\\Payment\\ResponseDataBuilder\\" . $className;
+
+            /** @var ResponseDataBuilderInterface $build */
+            $builder = new $responseBuilder($this->recharge, $response);
+
+            return $builder->getData();
+        } else {
+            throw new PreOrderFailedException($response->getMessage());
         }
     }
 
@@ -118,7 +121,7 @@ class Gateway
                 return response('fail', 200)
                     ->header('Content-Type', 'text/plain');
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return response('fail', 200)
                 ->header('Content-Type', 'text/plain');
         }
