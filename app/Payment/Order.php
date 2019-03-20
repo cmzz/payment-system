@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Payment;
 
 use App\Events\OrderPaidEvent;
+use App\Exceptions\NotifyDataErrorException;
 use App\Exceptions\TradeNoUsedException;
 use App\Models\Recharge;
 use App\Types\OrderStatus;
@@ -53,11 +54,26 @@ class Order
         DB::transaction(function () use ($recharge, $params) {
             $t = new Carbon();
 
+            $transactionNo = 0;
+            if ($recharge->isAlipay()) {
+                $transactionNo = data_get($params, 'trade_no');
+            }
+            if ($recharge->isWechatPay()) {
+                $transactionNo = data_get($params, 'transaction_id');
+            }
+            if ($recharge->isQpay()) {
+                $transactionNo = data_get($params, 'transaction_id');
+            }
+
+            if (!$transactionNo) {
+                throw new NotifyDataErrorException();
+            }
+
             $recharge = Recharge::where(Recharge::ID, $recharge->id)->lockForUpdate()->get();
             if ($recharge->{Recharge::PAID} != 1) {
                 DB::tables('recharges')->where(Recharge::ID, $recharge->{Recharge::ID})
                     ->update([
-                        $recharge->{Recharge::TRANSACTION_NO} => data_get($params, 'trade_no'),
+                        $recharge->{Recharge::TRANSACTION_NO} => $transactionNo,
                         $recharge->{Recharge::TRANSACTION_ORG_DATA} => \GuzzleHttp\json_encode($params),
                         $recharge->{Recharge::PAID} => 1,
                         $recharge->{Recharge::PAY_AT} => $t,
