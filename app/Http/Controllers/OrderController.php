@@ -3,8 +3,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Events\OrderCreatedEvent;
+use App\Events\OrderPreOrderedEvent;
 use App\Http\Requests\NewOrderRequest;
 use App\Http\Requests\QueryOrderRequest;
+use App\Models\Recharge;
 use App\Payment\Gateway;
 use App\Payment\Order;
 use App\Response;
@@ -30,7 +33,6 @@ class OrderController extends Controller
     public function store(NewOrderRequest $request)
     {
         $data = $request->getAll();
-
         $recharge = $this->order->create($data);
 
         try {
@@ -41,6 +43,9 @@ class OrderController extends Controller
             $recharge->delete();
             throw $e;
         }
+
+        event(new OrderCreatedEvent($recharge));
+        event(new OrderPreOrderedEvent($recharge->{Recharge::ID}, $rspData));
 
         return Response::successData($rspData);
     }
