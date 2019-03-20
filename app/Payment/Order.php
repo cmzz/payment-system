@@ -1,25 +1,21 @@
 <?php
-
 declare(strict_types=1);
-
 
 namespace App\Payment;
 
-
 use App\Events\OrderPaidEvent;
-use App\Exceptions\TradeNoUsedException as TradeNoUsedExceptionAlias;
+use App\Exceptions\TradeNoUsedException;
 use App\Models\Recharge;
 use App\Types\OrderStatus;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Omnipay\Omnipay;
 
 class Order
 {
     /**
      * @param array $data
      * @return mixed
+     * @throws TradeNoUsedException
      */
     public function create(array $data)
     {
@@ -29,7 +25,7 @@ class Order
             ->first();
 
         if ($recharge && $recharge->id) {
-//            throw new TradeNoUsedExceptionAlias();
+            throw new TradeNoUsedException();
         } else {
             $recharge = Recharge::create($data);
         }

@@ -24,6 +24,8 @@ class OrderController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @throws \App\Exceptions\UndefinedChannelException
      * @throws \App\Exceptions\PreOrderFailedException
+     * @throws \App\Exceptions\TradeNoUsedException
+     * @throws \Exception
      */
     public function store(NewOrderRequest $request)
     {
@@ -31,9 +33,14 @@ class OrderController extends Controller
 
         $recharge = $this->order->create($data);
 
-        $rspData = (new Gateway())
-            ->setRecharge($recharge)
-            ->preOrder();
+        try {
+            $rspData = (new Gateway())
+                ->setRecharge($recharge)
+                ->preOrder();
+        } catch (\Exception $e) {
+            $recharge->delete();
+            throw $e;
+        }
 
         return Response::successData($rspData);
     }
