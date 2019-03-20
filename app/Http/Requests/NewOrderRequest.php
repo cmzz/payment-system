@@ -70,7 +70,8 @@ class NewOrderRequest extends FormRequest
 
     private function getCurrency(): string
     {
-        return 'cny';
+        // todo 目前仅支持cny
+        return strtoupper('cny');
     }
 
     public function getAll()
