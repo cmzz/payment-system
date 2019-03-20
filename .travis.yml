@@ -1,0 +1,31 @@
+language: php
+php: 7.2
+group: stable
+dist: trusty
+os: linux
+sudo: required
+
+cache:
+  directories:
+    - $HOME/.composer/cache/files
+
+branches:
+  only:
+    - master
+    - /^development.*/
+
+install:
+  - cat /etc/lsb-release
+  - printf "\n" | sudo LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php
+  - sudo apt update
+  - sudo apt install -y php7.2-bcmath --fix-missing
+  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+  - composer install
+
+script: skip
+
+env:
+  global:
+
+before_deploy:
+deploy:

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
@@ -23,6 +24,7 @@ class OrderController extends Controller
      * @param NewOrderRequest $request
      * @return \Illuminate\Http\JsonResponse
      * @throws \App\Exceptions\UndefinedChannelException
+     * @throws \App\Exceptions\PreOrderFailedException
      */
     public function store(NewOrderRequest $request)
     {
