@@ -6,8 +6,12 @@ namespace App\Payment\ResponseDataBuilder;
 
 class QPayNative extends ResponseDataBuilder
 {
+    use QpayTrait;
+
     protected function process()
     {
-        $this->data = [];
+        $this->savePreOrderId();
+
+        $this->data = ['code_url' => $this->response->getCodeUrl()];
     }
 }

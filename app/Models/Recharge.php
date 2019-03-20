@@ -92,7 +92,7 @@ class Recharge extends Model
         return Str::startsWith(strtolower($this->attributes[self::CHANNEL]), 'alipay_');
     }
 
-    public function isWx(): bool
+    public function isWechatPay(): bool
     {
         return Str::startsWith(strtolower($this->attributes[self::CHANNEL]), 'wechatpay_');
     }

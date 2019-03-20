@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Payment;
 
+use App\Exceptions\PaymentRequestException;
 use App\Exceptions\PreOrderFailedException;
 use App\Exceptions\UndefinedChannelException;
 use App\Models\Recharge;
@@ -11,6 +12,7 @@ use App\Payment\ResponseDataBuilder\ResponseDataBuilderInterface;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 use Omnipay\Common\GatewayInterface;
+use Omnipay\Common\Message\RequestInterface;
 use Omnipay\Common\Message\ResponseInterface;
 use Omnipay\Omnipay;
 
@@ -23,16 +25,15 @@ class Gateway
     protected $recharge;
 
     /**
-     * @param $channel
      * @return Gateway
      * @throws UndefinedChannelException
      */
-    private function setChannel(string $channel): self
+    private function initGateway(): self
     {
-        $cs = strtolower($channel);
+        $channel = $this->recharge->{Recharge::CHANNEL};
         $conf = config('payment.gateways');
 
-        if (Str::startsWith($cs, 'qpay_')) {
+        if ($this->recharge->isQpay()) {
             $gateway = Omnipay::create($channel);
 
             $gateway->setAppId(data_get($conf, 'qpay.app_id'));
@@ -42,7 +43,7 @@ class Gateway
 
             $this->gateway = $gateway;
             return $this;
-        } elseif (Str::startsWith($cs, 'alipay_')) {
+        } elseif ($this->recharge->isAlipay()) {
             $gateway = Omnipay::create($channel);
 
             $gateway->setSignType(data_get($conf, 'alipay.sign_type')); //RSA/RSA2
@@ -54,7 +55,7 @@ class Gateway
 
             $this->gateway = $gateway;
             return $this;
-        } elseif (Str::startsWith($cs, 'wechatpay_')) {
+        } elseif ($this->recharge->isWechatPay()) {
             $gateway = Omnipay::create($channel);
 
             $gateway->setAppId(data_get($conf, 'wx.app_id'));
@@ -76,20 +77,38 @@ class Gateway
     public function setRecharge(Recharge $recharge): self
     {
         $this->recharge = $recharge;
-        $this->setChannel($recharge->{Recharge::CHANNEL});
+        $this->initGateway();
         return $this;
     }
 
+    /**
+     * 第三方平台下单
+     * @return array
+     * @throws PreOrderFailedException
+     */
     public function preOrder(): array
     {
         /** @var ResponseInterface $response */
+        /** @var RequestInterface $request */
         if ($this->recharge->isAlipay()) {
-            $response = $this->gateway->purchase()->setBizContent(PreOrderData::build($this->recharge))->send();
+            $request = $this->gateway->purchase()->setBizContent(PreOrderData::build($this->recharge));
         }
 
-        if ($this->recharge->isWx()) {
-            $response = $this->gateway->purchase(PreOrderData::build($this->recharge))->send();
+        if ($this->recharge->isWechatPay()) {
+            $request = $this->gateway->purchase(PreOrderData::build($this->recharge));
         }
+
+        if ($this->recharge->isQpay()) {
+            $request = $this->gateway->purchase(PreOrderData::build($this->recharge));
+        }
+
+        try {
+            $response = $request->send();
+        } catch (\Exception $e) {
+            throw new PaymentRequestException();
+        }
+
+        dump($response->getData());
 
         if ($response->isSuccessful()) {
             $className = str_replace('_', '', $this->recharge->{Recharge::CHANNEL});
@@ -100,7 +119,9 @@ class Gateway
 
             return $builder->getData();
         } else {
-            throw new PreOrderFailedException($response->getMessage());
+            dump($request->getData());
+
+            throw new PreOrderFailedException();
         }
     }
 
