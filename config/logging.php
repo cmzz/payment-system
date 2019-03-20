@@ -89,6 +89,14 @@ return [
             'driver' => 'errorlog',
             'level' => 'debug',
         ],
+
+        'order' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/order.log'),
+            'tap' => [App\Logging\OrderLogFormatter::class],
+            'level' => 'info',
+            'days' => 1,
+        ]
     ],
 
 ];

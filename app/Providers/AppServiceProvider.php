@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\TransactionLog;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -16,6 +17,10 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment() !== 'production') {
             $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
         }
+
+        $this->app->singleton('log.transaction', function () {
+            return new TransactionLog();
+        });
     }
 
     /**
