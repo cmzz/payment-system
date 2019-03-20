@@ -11,6 +11,7 @@ use App\Types\OrderPayStatus;
 use App\Types\OrderStatus;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class Order
 {
@@ -86,6 +87,11 @@ class Order
                         $recharge->{Recharge::BUYER_ID} => data_get($params, 'buyer_id', ''),
                     ]);
 
+                $recharge->refresh();
+
+                Log::channel('order')->info('支付成功, 订单状态更新成功', [
+                    'recharge' => $recharge
+                ]);
                 event(new OrderPaidEvent($recharge->{Recharge::ID}));
             }
         });
