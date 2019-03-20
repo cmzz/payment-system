@@ -22,7 +22,10 @@ class CallbackController extends Controller
     {
         $orderNo = $request->get('out_trade_no');
         if (!$orderNo) {
-            Log::error('同步毁掉参数中没有 out_trade_no');
+            Log::channel('order')->error('同步毁掉参数中没有 out_trade_no', [
+                'params' => $request->all()
+            ]);
+
             throw new InvalidArgumentException();
         }
 
