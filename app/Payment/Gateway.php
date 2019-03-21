@@ -7,8 +7,10 @@ namespace App\Payment;
 use App\Exceptions\PaymentRequestException;
 use App\Exceptions\PreOrderFailedException;
 use App\Exceptions\UndefinedChannelException;
+use App\Models\App;
 use App\Models\Recharge;
 use App\Payment\ResponseDataBuilder\ResponseDataBuilderInterface;
+use Carbon\Carbon;
 use Illuminate\Http\Response;
 use Omnipay\Common\GatewayInterface;
 use Omnipay\Common\Message\RequestInterface;
@@ -153,8 +155,28 @@ class Gateway
             if ($response->isPaid()) {
                 (new Order)->paid($this->recharge, $params);
 
-                return response('success', 200)
-                    ->header('Content-Type', 'text/plain');
+                // todo 待优化 发送异步通知到应用服务器
+                $this->recharge->refresh();
+
+                $app = current_app();
+                if ($notifyUrl = $app->{App::NOTIFY_URL}) {
+                    // todo 推送的数据需要加密
+                    $response = \Requests::post($notifyUrl, [], [
+                        'event' => 'order.paid',
+                        'server_time' => new Carbon(),
+                        'data' => [
+                            'recharge' => $this->recharge
+                        ]
+                    ]);
+
+                    if ($response->status_code == 200) {
+                        return response('success', 200)
+                            ->header('Content-Type', 'text/plain');
+                    }
+                } else {
+                    return response('fail', 200)
+                        ->header('Content-Type', 'text/plain');
+                }
             } else {
                 return response('fail', 200)
                     ->header('Content-Type', 'text/plain');
