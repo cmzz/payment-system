@@ -7,8 +7,10 @@ namespace App\Payment;
 use App\Exceptions\PaymentRequestException;
 use App\Exceptions\PreOrderFailedException;
 use App\Exceptions\UndefinedChannelException;
+use App\Models\App;
 use App\Models\Recharge;
 use App\Payment\ResponseDataBuilder\ResponseDataBuilderInterface;
+use Carbon\Carbon;
 use Illuminate\Http\Response;
 use Omnipay\Common\GatewayInterface;
 use Omnipay\Common\Message\RequestInterface;
@@ -103,7 +105,7 @@ class Gateway
             $response = $request->send();
         } catch (\Exception $e) {
             \Log::channel('order')->error('预下单请求发送失败', [
-                'recharge' => $this->recharge,
+                'recharge' => $this->recharge->toArray(),
                 'request_data' => $request->getData()
             ]);
 
@@ -112,7 +114,7 @@ class Gateway
 
         if ($response->isSuccessful()) {
             \Log::channel('order')->info('预下单成功', [
-                'recharge' => $this->recharge,
+                'recharge' => $this->recharge->toArray(),
                 'request_data' => $request->getData(),
                 'response_data' => $response->getData()
             ]);
@@ -125,7 +127,7 @@ class Gateway
 
             $prepayData = $builder->getData();
             \Log::channel('order')->info('预下单成功，返回数据到应用', [
-                'recharge' => $this->recharge,
+                'recharge' => $this->recharge->toArray(),
                 'response_data' => $response->getData(),
                 'data' => $prepayData
             ]);
@@ -153,15 +155,36 @@ class Gateway
             if ($response->isPaid()) {
                 (new Order)->paid($this->recharge, $params);
 
-                return response('success', 200)
-                    ->header('Content-Type', 'text/plain');
-            } else {
-                return response('fail', 200)
-                    ->header('Content-Type', 'text/plain');
+                // todo 待优化 发送异步通知到应用服务器
+                $this->recharge->refresh();
+
+                $app = $this->recharge->app;
+                if ($notifyUrl = $app->{App::NOTIFY_URL}) {
+                    // todo 推送的数据需要加密
+                    $response = \Requests::post($notifyUrl, [], [
+                        'event' => 'order.paid',
+                        'server_time' => new Carbon(),
+                        'data' => [
+                            'recharge' => $this->recharge
+                        ]
+                    ]);
+
+                    if ($response->status_code == 200) {
+                        return response('success', \Symfony\Component\HttpFoundation\Response::HTTP_OK)
+                            ->header('Content-Type', 'text/plain');
+                    }
+                }
             }
         } catch (\Exception $e) {
-            return response('fail', 200)
-                ->header('Content-Type', 'text/plain');
+            // nothing
+            \Log::channel('order')->error('服务器收到异步通知，但处理失败', [
+                'message' => $e->getMessage(),
+                'params' => $params,
+                'recharge' => $this->recharge->toArray()
+            ]);
         }
+
+        return response('fail', \Symfony\Component\HttpFoundation\Response::HTTP_INTERNAL_SERVER_ERROR)
+            ->header('Content-Type', 'text/plain');
     }
 }
