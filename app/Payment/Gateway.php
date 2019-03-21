@@ -105,7 +105,7 @@ class Gateway
             $response = $request->send();
         } catch (\Exception $e) {
             \Log::channel('order')->error('预下单请求发送失败', [
-                'recharge' => $this->recharge,
+                'recharge' => $this->recharge->toArray(),
                 'request_data' => $request->getData()
             ]);
 
@@ -114,7 +114,7 @@ class Gateway
 
         if ($response->isSuccessful()) {
             \Log::channel('order')->info('预下单成功', [
-                'recharge' => $this->recharge,
+                'recharge' => $this->recharge->toArray(),
                 'request_data' => $request->getData(),
                 'response_data' => $response->getData()
             ]);
@@ -127,7 +127,7 @@ class Gateway
 
             $prepayData = $builder->getData();
             \Log::channel('order')->info('预下单成功，返回数据到应用', [
-                'recharge' => $this->recharge,
+                'recharge' => $this->recharge->toArray(),
                 'response_data' => $response->getData(),
                 'data' => $prepayData
             ]);
@@ -170,20 +170,21 @@ class Gateway
                     ]);
 
                     if ($response->status_code == 200) {
-                        return response('success', 200)
+                        return response('success', \Symfony\Component\HttpFoundation\Response::HTTP_OK)
                             ->header('Content-Type', 'text/plain');
                     }
-                } else {
-                    return response('fail', 200)
-                        ->header('Content-Type', 'text/plain');
                 }
-            } else {
-                return response('fail', 200)
-                    ->header('Content-Type', 'text/plain');
             }
         } catch (\Exception $e) {
-            return response('fail', 200)
-                ->header('Content-Type', 'text/plain');
+            // nothing
+            \Log::channel('order')->error('服务器收到异步通知，但处理失败', [
+                'message' => $e->getMessage(),
+                'params' => $params,
+                'recharge' => $this->recharge->toArray()
+            ]);
         }
+
+        return response('fail', \Symfony\Component\HttpFoundation\Response::HTTP_INTERNAL_SERVER_ERROR)
+            ->header('Content-Type', 'text/plain');
     }
 }
