@@ -158,7 +158,7 @@ class Gateway
                 // todo 待优化 发送异步通知到应用服务器
                 $this->recharge->refresh();
 
-                $app = current_app();
+                $app = $this->recharge->app;
                 if ($notifyUrl = $app->{App::NOTIFY_URL}) {
                     // todo 推送的数据需要加密
                     $response = \Requests::post($notifyUrl, [], [
