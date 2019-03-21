@@ -6,6 +6,7 @@ namespace App\Payment;
 use App\Events\OrderPaidEvent;
 use App\Exceptions\NotifyDataErrorException;
 use App\Exceptions\TradeNoUsedException;
+use App\Models\App;
 use App\Models\Recharge;
 use App\Types\Channel;
 use App\Types\OrderPayStatus;
@@ -33,6 +34,9 @@ class Order
         } else {
             $data[Recharge::PAID] = OrderPayStatus::WAIT_PAY;
             $data[Recharge::STATUS] = OrderStatus::WAIT_PAY;
+
+            $app = current_app();
+            $data[Recharge::USER_ID] = $app->{App::USER_ID};
 
             $recharge = Recharge::create($data);
         }
