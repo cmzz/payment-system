@@ -10,6 +10,8 @@ class JsonFormatter extends BaseJsonFormatter
     public function format(array $record)
     {
         $newRecord = [
+            'channel' => $record['channel'],
+            'level' => $record['level_name'],
             'time' => $record['datetime']->format('Y-m-d H:i:s'),
             'message' => $record['message'],
         ];

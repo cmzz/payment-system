@@ -87,18 +87,5 @@ class Recharge extends Model
         return $this->attributes[self::AMOUNT] * 0.01;
     }
 
-    public function isAlipay(): bool
-    {
-        return Str::startsWith(strtolower($this->attributes[self::CHANNEL]), 'alipay_');
-    }
 
-    public function isWechatPay(): bool
-    {
-        return Str::startsWith(strtolower($this->attributes[self::CHANNEL]), 'wechatpay_');
-    }
-
-    public function isQpay(): bool
-    {
-        return Str::startsWith(strtolower($this->attributes[self::CHANNEL]), 'qpay_');
-    }
 }

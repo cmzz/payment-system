@@ -10,7 +10,7 @@ class PreOrderData
 {
     static public function build(Recharge $recharge)
     {
-        if ($recharge->isAlipay()) {
+        if (Channel::isAlipay($recharge->{Recharge::CHANNEL})) {
             $data = [
                 'subject' => $recharge->{Recharge::SUBJECT},
                 'body' => $recharge->{Recharge::BODY},
@@ -23,7 +23,7 @@ class PreOrderData
             return $data;
         }
 
-        if ($recharge->isWechatPay()) {
+        if (Channel::isWechatPay($recharge->{Recharge::CHANNEL})) {
             return $data = [
                 'body' => $recharge->{Recharge::BODY},
                 'out_trade_no' => TradeNo::encode($recharge->{Recharge::APP_ID}, $recharge->{Recharge::ORDER_NO},
@@ -31,11 +31,11 @@ class PreOrderData
                 'total_fee' => $recharge->{Recharge::AMOUNT},
                 'spbill_create_ip' => $recharge->{Recharge::CLIENT_IP},
                 'fee_type' => strtoupper($recharge->{Recharge::CURRENCY}),
-                'notify_url' => route('notify_url')
+                'notify_url' => route('notify_url.wechatpay')
             ];
         }
 
-        if ($recharge->isQpay()) {
+        if (Channel::isQpay($recharge->{Recharge::CHANNEL})) {
             return $data = [
                 'body' => $recharge->{Recharge::SUBJECT},
                 'out_trade_no' => TradeNo::encode($recharge->{Recharge::APP_ID}, $recharge->{Recharge::ORDER_NO},
@@ -43,7 +43,7 @@ class PreOrderData
                 'total_fee' => $recharge->{Recharge::AMOUNT},
                 'spbill_create_ip' => $recharge->{Recharge::CLIENT_IP},
                 'fee_type' => strtoupper($recharge->{Recharge::CURRENCY}),
-                'notify_url' => route('notify_url')
+                'notify_url' => route('notify_url.qpay')
             ];
         }
     }
