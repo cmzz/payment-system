@@ -14,11 +14,20 @@ class NotifyController extends Controller
 {
     public function index(Request $request)
     {
+        $params = $request->all();
+        if (!$params) {
+            $params = file_get_contents('php://input');
+        }
+
         \Log::channel('order')->info('订单异步通知', [
-            'params' => $request->all()
+            'params' => $params
         ]);
 
-        $orderNo = $request->get('out_trade_no');
+        $orderNo = data_get($params, 'out_trade_no');
+        if (!$orderNo) {
+
+        }
+
         $orderInfo = TradeNo::decode($orderNo);
 
         if ($rechargeId = data_get($orderInfo, 2)) {

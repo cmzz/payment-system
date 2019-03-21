@@ -146,8 +146,14 @@ class Gateway
 
     public function notify(array $params): Response
     {
-        $request = $this->gateway->completePurchase();
-        $request->setParams($params);
+        if ($this->recharge->isAlipay()) {
+            $request = $this->gateway->completePurchase();
+            $request->setParams($params);
+        } elseif ($this->recharge->isQpay() || $this->recharge->isWechatPay()) {
+            $request = $this->gateway->completePurchase([
+                'request_params' => $params
+            ]);
+        }
 
         try {
             $response = $request->send();
