@@ -49,7 +49,7 @@ class Gateway
             $gateway->setAppId(data_get($conf, 'alipay.app_id'));
             $gateway->setPrivateKey(data_get($conf, 'alipay.private_key'));
             $gateway->setAlipayPublicKey(data_get($conf, 'alipay.alipay_public_key'));
-            $gateway->setNotifyUrl(route('notify_url'));
+            $gateway->setNotifyUrl(route('notify_url.alipay'));
             $gateway->setReturnUrl(route('return_url'));
 
             $this->gateway = $gateway;
