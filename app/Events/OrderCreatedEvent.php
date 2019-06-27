@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Events;
 
-use App\Models\Recharge;
+use App\Models\Charge;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -16,17 +16,17 @@ class OrderCreatedEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /** @var Recharge */
-    public $recharge;
+    /** @var Charge */
+    public $charge;
 
     /**
      * Create a new event instance.
      *
-     * @param Recharge $recharge
+     * @param Charge $charge
      */
-    public function __construct(Recharge $recharge)
+    public function __construct(Charge $charge)
     {
-        $this->recharge = $recharge;
+        $this->charge = $charge;
     }
 
     /**

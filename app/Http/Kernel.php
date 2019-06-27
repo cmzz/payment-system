@@ -48,7 +48,7 @@ class Kernel extends HttpKernel
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
 
-            RequestId::class,
+//            RequestId::class,
             Logger::class,
         ],
     ];

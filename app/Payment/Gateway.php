@@ -7,7 +7,7 @@ namespace App\Payment;
 use App\Exceptions\PaymentRequestException;
 use App\Exceptions\PreOrderFailedException;
 use App\Exceptions\UndefinedChannelException;
-use App\Models\Recharge;
+use App\Models\Charge;
 use App\Payment\ResponseDataBuilder\ResponseDataBuilderInterface;
 use Illuminate\Http\Response;
 use Omnipay\Common\GatewayInterface;
@@ -20,8 +20,8 @@ class Gateway
     /** @var GatewayInterface */
     protected $gateway;
 
-    /** @var Recharge */
-    protected $recharge;
+    /** @var Charge */
+    protected $charge;
 
     /**
      * @return Gateway
@@ -29,10 +29,10 @@ class Gateway
      */
     private function initGateway(): self
     {
-        $channel = $this->recharge->{Recharge::CHANNEL};
+        $channel = $this->charge->{Charge::CHANNEL};
         $conf = config('payment.gateways');
 
-        if ($this->recharge->isQpay()) {
+        if ($this->charge->isQpay()) {
             $gateway = Omnipay::create($channel);
 
             $gateway->setAppId(data_get($conf, 'qpay.app_id'));
@@ -42,7 +42,7 @@ class Gateway
 
             $this->gateway = $gateway;
             return $this;
-        } elseif ($this->recharge->isAlipay()) {
+        } elseif ($this->charge->isAlipay()) {
             $gateway = Omnipay::create($channel);
 
             $gateway->setSignType(data_get($conf, 'alipay.sign_type')); //RSA/RSA2
@@ -54,7 +54,7 @@ class Gateway
 
             $this->gateway = $gateway;
             return $this;
-        } elseif ($this->recharge->isWechatPay()) {
+        } elseif ($this->charge->isWechatPay()) {
             $gateway = Omnipay::create($channel);
 
             $gateway->setAppId(data_get($conf, 'wx.app_id'));
@@ -69,13 +69,13 @@ class Gateway
     }
 
     /**
-     * @param Recharge $recharge
+     * @param Charge $charge
      * @return Gateway
      * @throws UndefinedChannelException
      */
-    public function setRecharge(Recharge $recharge): self
+    public function setCharge(Charge $charge): self
     {
-        $this->recharge = $recharge;
+        $this->charge = $charge;
         $this->initGateway();
 
         return $this;
@@ -90,20 +90,20 @@ class Gateway
     {
         /** @var ResponseInterface $response */
         /** @var RequestInterface $request */
-        if ($this->recharge->isAlipay()) {
-            $request = $this->gateway->purchase()->setBizContent(PreOrderData::build($this->recharge));
+        if ($this->charge->isAlipay()) {
+            $request = $this->gateway->purchase()->setBizContent(PreOrderData::build($this->charge));
         }
 
-        if ($this->recharge->isWechatPay() ||
-            $this->recharge->isQpay()) {
-            $request = $this->gateway->purchase(PreOrderData::build($this->recharge));
+        if ($this->charge->isWechatPay() ||
+            $this->charge->isQpay()) {
+            $request = $this->gateway->purchase(PreOrderData::build($this->charge));
         }
 
         try {
             $response = $request->send();
         } catch (\Exception $e) {
             \Log::channel('order')->error('预下单请求发送失败', [
-                'recharge' => $this->recharge,
+                'charge' => $this->charge,
                 'request_data' => $request->getData()
             ]);
 
@@ -112,20 +112,20 @@ class Gateway
 
         if ($response->isSuccessful()) {
             \Log::channel('order')->info('预下单成功', [
-                'recharge' => $this->recharge,
+                'charge' => $this->charge,
                 'request_data' => $request->getData(),
                 'response_data' => $response->getData()
             ]);
 
-            $className = str_replace('_', '', $this->recharge->{Recharge::CHANNEL});
+            $className = str_replace('_', '', $this->charge->{Charge::CHANNEL});
             $responseBuilder = "\\App\\Payment\\ResponseDataBuilder\\" . $className;
 
             /** @var ResponseDataBuilderInterface $build */
-            $builder = new $responseBuilder($this->recharge, $response);
+            $builder = new $responseBuilder($this->charge, $response);
 
             $prepayData = $builder->getData();
             \Log::channel('order')->info('预下单成功，返回数据到应用', [
-                'recharge' => $this->recharge,
+                'charge' => $this->charge,
                 'response_data' => $response->getData(),
                 'data' => $prepayData
             ]);
@@ -133,7 +133,7 @@ class Gateway
             return $prepayData;
         } else {
             \Log::channel('order')->error('预下单失败', [
-                'recharge' => $this->recharge,
+                'charge' => $this->charge,
                 'request_data' => $request->getData(),
                 'response_data' => $response->getData()
             ]);
@@ -151,7 +151,7 @@ class Gateway
             $response = $request->send();
 
             if ($response->isPaid()) {
-                (new Order)->paid($this->recharge, $params);
+                (new Order)->paid($this->charge, $params);
 
                 return response('success', 200)
                     ->header('Content-Type', 'text/plain');

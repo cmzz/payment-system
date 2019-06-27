@@ -10,6 +10,8 @@ namespace App\Exceptions;
 final class ErrorCodes
 {
     const INVALID_ARGUMENT_ERROR = 41000;
+    const INVALID_SIGNATURE_ERROR = 41001;
+    const NOTIFY_FAILED_ERROR = 41002;
     const RECORD_NOT_FOUND = 43001;
     const RECORD_ALREADY_EXISTS = 43002;
     const TRADE_NO_USED_ERROR = 45001;
@@ -21,6 +23,7 @@ final class ErrorCodes
     const UNION_PARAM_ERROR = 52000;
     const UPDATE_RECORD_FAIL_ERROR = 53000;
     const PRE_ORDER_FAILED_ERROR = 55001;
+    const ORDER_STATUS_ERROR = 55002;
     const REQUEST_PAYMENT_PLATFORM_FAILED_ERROR = 55002;
     const NOTIFY_DATA_ERROR = 55003;
 }

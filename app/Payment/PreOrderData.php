@@ -3,46 +3,45 @@ declare(strict_types=1);
 
 namespace App\Payment;
 
-use App\Models\Recharge;
+use App\Models\Charge;
 use App\Types\Channel;
 
 class PreOrderData
 {
-    static public function build(Recharge $recharge)
+    static public function build(Charge $charge)
     {
-        if ($recharge->isAlipay()) {
+        if ($charge->isAlipay()) {
             $data = [
-                'subject' => $recharge->{Recharge::SUBJECT},
-                'body' => $recharge->{Recharge::BODY},
-                'out_trade_no' => TradeNo::encode($recharge->{Recharge::APP_ID}, $recharge->{Recharge::ORDER_NO},
-                    $recharge->{Recharge::ID}),
-                'total_amount' => $recharge->getCentAmount(),
-                'product_code' => static::getAlipayProductCode($recharge->{Recharge::CHANNEL}),
+                'subject' => $charge->{Charge::SUBJECT},
+                'body' => $charge->{Charge::BODY},
+                'out_trade_no' => $charge->{Charge::CHARGE_NO},
+                'total_amount' => $charge->getYuanAmount(),
+                'product_code' => static::getAlipayProductCode($charge->{Charge::CHANNEL}),
             ];
 
             return $data;
         }
 
-        if ($recharge->isWechatPay()) {
+        if ($charge->isWechatPay()) {
             return $data = [
-                'body' => $recharge->{Recharge::BODY},
-                'out_trade_no' => TradeNo::encode($recharge->{Recharge::APP_ID}, $recharge->{Recharge::ORDER_NO},
-                    $recharge->{Recharge::ID}),
-                'total_fee' => $recharge->{Recharge::AMOUNT},
-                'spbill_create_ip' => $recharge->{Recharge::CLIENT_IP},
-                'fee_type' => strtoupper($recharge->{Recharge::CURRENCY}),
+                'body' => $charge->{Charge::BODY},
+                'out_trade_no' => TradeNo::encode($charge->{Charge::APP_ID}, $charge->{Charge::ORDER_NO},
+                    $charge->{Charge::ID}),
+                'total_fee' => $charge->{Charge::AMOUNT},
+                'spbill_create_ip' => $charge->{Charge::CLIENT_IP},
+                'fee_type' => strtoupper($charge->{Charge::CURRENCY}),
                 'notify_url' => route('notify_url')
             ];
         }
 
-        if ($recharge->isQpay()) {
+        if ($charge->isQpay()) {
             return $data = [
-                'body' => $recharge->{Recharge::SUBJECT},
-                'out_trade_no' => TradeNo::encode($recharge->{Recharge::APP_ID}, $recharge->{Recharge::ORDER_NO},
-                    $recharge->{Recharge::ID}),
-                'total_fee' => $recharge->{Recharge::AMOUNT},
-                'spbill_create_ip' => $recharge->{Recharge::CLIENT_IP},
-                'fee_type' => strtoupper($recharge->{Recharge::CURRENCY}),
+                'body' => $charge->{Charge::SUBJECT},
+                'out_trade_no' => TradeNo::encode($charge->{Charge::APP_ID}, $charge->{Charge::ORDER_NO},
+                    $charge->{Charge::ID}),
+                'total_fee' => $charge->{Charge::AMOUNT},
+                'spbill_create_ip' => $charge->{Charge::CLIENT_IP},
+                'fee_type' => strtoupper($charge->{Charge::CURRENCY}),
                 'notify_url' => route('notify_url')
             ];
         }

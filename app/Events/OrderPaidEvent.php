@@ -15,7 +15,7 @@ class OrderPaidEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    protected $rechargeId;
+    public $chargeId;
 
     /**
      * Create a new event instance.
@@ -24,7 +24,7 @@ class OrderPaidEvent
      */
     public function __construct(int $id)
     {
-        $this->rechargeId = $id;
+        $this->chargeId = $id;
     }
 
     /**

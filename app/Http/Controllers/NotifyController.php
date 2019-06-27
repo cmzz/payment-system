@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Models\Recharge;
+use App\Models\Charge;
 use App\Payment\Gateway;
 use App\Payment\TradeNo;
 use function GuzzleHttp\Psr7\build_query;
@@ -18,20 +18,18 @@ class NotifyController extends Controller
             'params' => $request->all()
         ]);
 
-        $orderNo = $request->get('out_trade_no');
-        $orderInfo = TradeNo::decode($orderNo);
+        $chargeNo = $request->get('out_trade_no');
 
-        if ($rechargeId = data_get($orderInfo, 2)) {
+        if ($chargeNo) {
             try {
-                $recharge = Recharge::where(Recharge::APP_ID, data_get($orderInfo, 0))
-                    ->where(Recharge::ID, $rechargeId)
+                $charge = Charge::where(Charge::CHARGE_NO, $chargeNo)
                     ->firstOrFail();
 
-                Log::channel('order')->info('订单recharge', [
-                    'recharge' => $recharge
+                Log::channel('order')->info('charge', [
+                    'charge' => $charge
                 ]);
 
-                return (new Gateway())->setRecharge($recharge)->notify($request->all());
+                return (new Gateway())->setCharge($charge)->notify($request->all());
             } catch (\Exception $e) {
                 response('fail', 200)
                     ->header('Content-Type', 'text/plain');

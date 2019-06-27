@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "813cef32e83811a74ea0f22c77874c56",
+    "content-hash": "c31b1bb4f63cf7a2e0ac363492534ece",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -953,6 +953,64 @@
             ],
             "description": "Highlight PHP code in terminal",
             "time": "2018-09-29T18:48:56+00:00"
+        },
+        {
+            "name": "kra8/laravel-snowflake",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/kra8/laravel-snowflake.git",
+                "reference": "2bdc5693bbafc6cf0ad800645032167343fc03a2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/kra8/laravel-snowflake/zipball/2bdc5693bbafc6cf0ad800645032167343fc03a2",
+                "reference": "2bdc5693bbafc6cf0ad800645032167343fc03a2",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://dl.laravel-china.org/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "php": ">=7.0.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "~3.0",
+                "phpunit/phpunit": "~6.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Kra8\\Snowflake\\SnowflakeServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Kra8\\Snowflake\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Koki Asai",
+                    "email": "koki@asai.email"
+                }
+            ],
+            "description": "Snowflake for Laravel.",
+            "homepage": "https://github.com/kra8/laravel-snowflake",
+            "keywords": [
+                "laravel",
+                "snowflake"
+            ],
+            "time": "2017-10-16T13:12:54+00:00"
         },
         {
             "name": "kuangjy/omnipay-qpay",

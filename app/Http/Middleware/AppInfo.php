@@ -7,7 +7,6 @@ use App\Exceptions\InvalidHeaderException;
 use App\Keys;
 use App\Models\App;
 use Closure;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AppInfo
 {

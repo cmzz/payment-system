@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\InvalidArgumentException;
 use App\Models\App;
-use App\Models\Recharge;
+use App\Models\Charge;
 use App\Payment\TradeNo;
 use function GuzzleHttp\Psr7\build_query;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -31,21 +31,21 @@ class CallbackController extends Controller
 
         $orderInfo = TradeNo::decode($orderNo);
 
-        if ($rechargeId = data_get($orderInfo, 2)) {
+        if ($chargeId = data_get($orderInfo, 2)) {
             try {
-                $recharge = Recharge::where(Recharge::APP_ID, data_get($orderInfo, 0))
-                    ->where(Recharge::ID, $rechargeId)
+                $charge = Charge::where(Charge::APP_ID, data_get($orderInfo, 0))
+                    ->where(Charge::ID, $chargeId)
                     ->firstOrFail();
 
             } catch (ModelNotFoundException $e) {
                 return view('order.404');
             }
 
-            $app = $recharge->app;
+            $app = $charge->app;
 
             return redirect($app->{App::CALLBACK_URL}.'?'.build_query([
-                    'recharge_id' => $recharge->{Recharge::ID},
-                    'order_no' => $recharge->{Recharge::ORDER_NO}
+                    'charge_no' => $charge->{Charge::CHARGE_NO},
+                    'order_no' => $charge->{Charge::ORDER_NO}
                 ]));
         }
 
