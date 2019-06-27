@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace App\Types;
 
+use Illuminate\Support\Str;
+
 class Channel
 {
+    const QPAY = 'QPay'; // QQ钱包支付通用网关
     const QPAY_APP = 'QPay_App'; // QQ 钱包 App 支付
     const QPAY_JS = 'QPay_Js'; // QQ 钱包公众号支付
     const QPAY_NATIVE = 'QPay_Native'; // QQ 钱包原生扫码支付
     const QPAY_MICROPAY = 'QPay_MicroPay'; // QQ 钱包付款码支付
 
+    const WECHATPAY = 'WechatPay'; // 微信支付通用网关
     const WECHATPAY_APP = 'WechatPay_App'; // 微信 App 支付
     const WECHATPAY_JS = 'WechatPay_Js'; // 微信网页、公众号、小程序支付网关
     const WECHATPAY_NATIVE = 'WechatPay_Native'; // 微信 Native 支付
@@ -44,5 +48,20 @@ class Channel
             self::ALIPAY_AOPF2F,
             self::ALIPAY_AOPJS,
         ];
+    }
+
+    public static function isAlipay(string $channel): bool
+    {
+        return Str::startsWith(strtolower($channel), 'alipay');
+    }
+
+    public static function isWechatPay(string $channel): bool
+    {
+        return Str::startsWith(strtolower($channel), 'wechatpay');
+    }
+
+    public static function isQpay(string $channel): bool
+    {
+        return Str::startsWith(strtolower($channel), 'qpay');
     }
 }

@@ -23,7 +23,8 @@
         "laravel/tinker": "^1.0",
         "lokielse/omnipay-alipay": "^3.0",
         "lokielse/omnipay-unionpay": "^3",
-        "lokielse/omnipay-wechatpay": "^3.0"
+        "lokielse/omnipay-wechatpay": "^3.0",
+        "rmccue/requests": "^1.7"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.6",
