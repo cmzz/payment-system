@@ -149,8 +149,14 @@ class Gateway
      */
     public function notify($params): Response
     {
-        $request = $this->gateway->completePurchase();
-        $request->setParams($params);
+        if ($this->charge->isAlipay()) {
+            $request = $this->gateway->completePurchase();
+            $request->setParams($params);
+        } else {
+            $request = $this->gateway->completePurchase([
+                'request_params' => file_get_contents('php://input')
+            ]);
+        }
 
         try {
             $response = $request->send();
