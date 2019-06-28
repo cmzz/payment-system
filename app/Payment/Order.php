@@ -80,7 +80,8 @@ class Order
             $charge = Charge::where(Charge::ID, $charge->id)->lockForUpdate()->first();
 
             if ($charge->{Charge::PAID} != OrderPayStatus::PAID) {
-                DB::tables('charges')->where(Charge::ID, $charge->{Charge::ID})
+                DB::table('charges')
+                    ->where(Charge::ID, $charge->{Charge::ID})
                     ->update([
                         $charge->{Charge::TRANSACTION_NO} => $transactionNo,
                         $charge->{Charge::TRANSACTION_ORG_DATA} => \GuzzleHttp\json_encode($params),
