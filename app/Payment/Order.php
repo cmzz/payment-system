@@ -77,17 +77,19 @@ class Order
                 throw new NotifyDataErrorException();
             }
 
-            $charge = Charge::where(Charge::ID, $charge->id)->lockForUpdate()->get();
+            $charge = Charge::where(Charge::ID, $charge->id)->lockForUpdate()->first();
+
             if ($charge->{Charge::PAID} != OrderPayStatus::PAID) {
-                DB::tables('charges')->where(Charge::ID, $charge->{Charge::ID})
+                DB::table('charges')
+                    ->where(Charge::ID, $charge->{Charge::ID})
                     ->update([
-                        $charge->{Charge::TRANSACTION_NO} => $transactionNo,
-                        $charge->{Charge::TRANSACTION_ORG_DATA} => \GuzzleHttp\json_encode($params),
-                        $charge->{Charge::PAID} => OrderPayStatus::PAID,
-                        $charge->{Charge::PAY_AT} => $t,
-                        $charge->{Charge::STATUS} => OrderStatus::PAID,
-                        $charge->{Charge::UPDATED_AT} => $t,
-                        $charge->{Charge::BUYER_ID} => data_get($params, 'buyer_id', ''),
+                        Charge::TRANSACTION_NO => $transactionNo,
+                        Charge::TRANSACTION_ORG_DATA => \GuzzleHttp\json_encode($params),
+                        Charge::PAID => OrderPayStatus::PAID,
+                        Charge::PAY_AT => $t,
+                        Charge::STATUS => OrderStatus::PAID,
+                        Charge::UPDATED_AT => $t,
+                        Charge::BUYER_ID => data_get($params, 'buyer_id', ''),
                     ]);
 
                 $charge->refresh();
@@ -95,6 +97,7 @@ class Order
                 Log::channel('order')->info('支付成功, 订单状态更新成功', [
                     'charge' => $charge
                 ]);
+
                 event(new OrderPaidEvent($charge->{Charge::ID}));
             }
         });

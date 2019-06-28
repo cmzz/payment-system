@@ -31,6 +31,7 @@ class NotifyController extends Controller
 
                 return (new Gateway())->setCharge($charge)->notify($request->all());
             } catch (\Exception $e) {
+                Log::error($e->getTraceAsString());
                 response('fail', 200)
                     ->header('Content-Type', 'text/plain');
             }
