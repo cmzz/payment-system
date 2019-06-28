@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\InvalidArgumentException;
 use App\Models\App;
-use App\Models\Recharge;
+use App\Models\Charge;
 use App\Payment\TradeNo;
 use function GuzzleHttp\Psr7\build_query;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -20,8 +20,8 @@ class CallbackController extends Controller
      */
     public function index(Request $request)
     {
-        $orderNo = $request->get('out_trade_no');
-        if (!$orderNo) {
+        $chargeNo = $request->get('out_trade_no');
+        if (!$chargeNo) {
             Log::channel('order')->error('同步回调参数中没有 out_trade_no', [
                 'params' => $request->all()
             ]);
@@ -29,23 +29,20 @@ class CallbackController extends Controller
             throw new InvalidArgumentException();
         }
 
-        $orderInfo = TradeNo::decode($orderNo);
-
-        if ($rechargeId = data_get($orderInfo, 2)) {
+        if ($chargeNo) {
             try {
-                $recharge = Recharge::where(Recharge::APP_ID, data_get($orderInfo, 0))
-                    ->where(Recharge::ID, $rechargeId)
+                $charge = Charge::where(Charge::CHARGE_NO, $chargeNo)
                     ->firstOrFail();
 
             } catch (ModelNotFoundException $e) {
                 return view('order.404');
             }
 
-            $app = $recharge->app;
+            $app = $charge->app;
 
             return redirect($app->{App::CALLBACK_URL}.'?'.build_query([
-                    'recharge_id' => $recharge->{Recharge::ID},
-                    'order_no' => $recharge->{Recharge::ORDER_NO}
+                    'charge_no' => $charge->{Charge::CHARGE_NO},
+                    'order_no' => $charge->{Charge::ORDER_NO}
                 ]));
         }
 

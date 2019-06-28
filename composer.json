@@ -17,6 +17,7 @@
         "barryvdh/laravel-cors": "^0.11.3",
         "fideloper/proxy": "^4.0",
         "ignited/laravel-omnipay": "3.*",
+        "kra8/laravel-snowflake": "^1.1",
         "kuangjy/omnipay-qpay": "^3.0",
         "laravel/framework": "5.8.*",
         "laravel/tinker": "^1.0",

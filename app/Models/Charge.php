@@ -3,16 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
-class Recharge extends Model
+class Charge extends Model
 {
+    protected $table = 'charges';
+
     const ID = 'id';
     const APP_ID = 'app_id';
     const USER_ID = 'user_id';
     const BUYER_ID = 'buyer_id';
     const BUYER_OPENID = 'buyer_openid';
     const ORDER_NO = 'order_no';
+    const CHARGE_NO = 'charge_no';
     const CLIENT_IP = 'client_ip';
     const SUBJECT = 'subject';
     const BODY = 'body';
@@ -39,7 +43,7 @@ class Recharge extends Model
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
     const PREPAY_ID = 'prepay_id';
-    const NONCE_STR = 'NONCE_STR';
+    const NONCE_STR = 'nonce_str';
 
     protected $fillable = [
         self::ID,
@@ -47,6 +51,7 @@ class Recharge extends Model
         self::USER_ID,
         self::BUYER_ID,
         self::BUYER_OPENID,
+        self::CHARGE_NO,
         self::ORDER_NO,
         self::CLIENT_IP,
         self::SUBJECT,
@@ -77,15 +82,43 @@ class Recharge extends Model
         self::NONCE_STR,
     ];
 
-    public function app()
+    public function app(): BelongsTo
     {
         return $this->belongsTo(App::class);
     }
 
-    public function getCentAmount(): float
+    public function getYuanAmount(): float
     {
         return $this->attributes[self::AMOUNT] * 0.01;
     }
 
+    public function isAlipay(): bool
+    {
+        return Str::startsWith(strtolower($this->attributes[self::CHANNEL]), 'alipay_');
+    }
 
+    public function isWechatPay(): bool
+    {
+        return Str::startsWith(strtolower($this->attributes[self::CHANNEL]), 'wechatpay_');
+    }
+
+    public function isQpay(): bool
+    {
+        return Str::startsWith(strtolower($this->attributes[self::CHANNEL]), 'qpay_');
+    }
+
+    public function buildNotifyData(): array
+    {
+        return [
+            self::AMOUNT => $this->attributes[self::AMOUNT],
+            self::STATUS => $this->attributes[self::STATUS],
+            self::PAID => $this->attributes[self::PAID],
+            self::ORDER_NO => $this->attributes[self::ORDER_NO],
+            self::TRANSACTION_NO => $this->attributes[self::TRANSACTION_NO],
+            self::PAY_AT => $this->attributes[self::PAY_AT],
+            self::BUYER_ID => $this->attributes[self::BUYER_ID],
+            self::BUYER_OPENID => $this->attributes[self::BUYER_OPENID],
+            'app_key' => $this->app->{App::APP_KEY}
+        ];
+    }
 }

@@ -7,7 +7,7 @@ use App\Events\OrderCreatedEvent;
 use App\Events\OrderPreOrderedEvent;
 use App\Http\Requests\NewOrderRequest;
 use App\Http\Requests\QueryOrderRequest;
-use App\Models\Recharge;
+use App\Models\Charge;
 use App\Payment\Gateway;
 use App\Payment\Order;
 use App\Response;
@@ -32,24 +32,24 @@ class OrderController extends Controller
      */
     public function store(NewOrderRequest $request)
     {
-        $data = $request->getAll();
+        $data = $request->allParams();
         \Log::channel('order')->info('创建订单', [
             'params' => $data
         ]);
 
-        $recharge = $this->order->create($data);
+        $charge = $this->order->create($data);
 
         try {
             $rspData = (new Gateway())
-                ->setRecharge($recharge)
+                ->setCharge($charge)
                 ->preOrder();
         } catch (\Exception $e) {
-            $recharge->delete();
+            $charge->delete();
             throw $e;
         }
 
-        event(new OrderCreatedEvent($recharge));
-        event(new OrderPreOrderedEvent($recharge->{Recharge::ID}, $rspData));
+        event(new OrderCreatedEvent($charge));
+        event(new OrderPreOrderedEvent($charge->{Charge::ID}, $rspData));
 
         return Response::successData($rspData);
     }

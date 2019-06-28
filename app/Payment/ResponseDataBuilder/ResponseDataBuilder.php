@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Payment\ResponseDataBuilder;
 
 
-use App\Models\Recharge;
+use App\Models\Charge;
 use Omnipay\Common\Message\ResponseInterface;
 
 class ResponseDataBuilder implements ResponseDataBuilderInterface
 {
-    /** @var Recharge */
-    protected $recharge;
+    /** @var Charge */
+    protected $charge;
 
     /** @var ResponseInterface */
     protected $response;
@@ -19,9 +19,9 @@ class ResponseDataBuilder implements ResponseDataBuilderInterface
     /** @var array */
     protected $data;
 
-    public function __construct(Recharge $recharge, ResponseInterface $response)
+    public function __construct(Charge $charge, ResponseInterface $response)
     {
-        $this->recharge = $recharge;
+        $this->charge = $charge;
         $this->response = $response;
     }
 

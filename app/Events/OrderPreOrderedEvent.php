@@ -14,18 +14,18 @@ class OrderPreOrderedEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $rechargeId;
+    public $chargeId;
     public $preOrderData;
 
     /**
      * Create a new event instance.
      *
-     * @param int $rechargeId
+     * @param int $chargeId
      * @param array $preOrderData
      */
-    public function __construct(int $rechargeId, array $preOrderData)
+    public function __construct(int $chargeId, array $preOrderData)
     {
-        $this->rechargeId = $rechargeId;
+        $this->chargeId = $chargeId;
         $this->preOrderData = $preOrderData;
     }
 

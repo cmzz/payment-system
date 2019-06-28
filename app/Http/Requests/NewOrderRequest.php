@@ -4,7 +4,8 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use App\Exceptions\InvalidArgumentException;
-use App\Models\Recharge;
+use App\Models\Charge;
+use App\Models\User;
 use App\Types\Channel;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -74,21 +75,22 @@ class NewOrderRequest extends FormRequest
         return strtoupper('cny');
     }
 
-    public function getAll()
+    public function allParams()
     {
         $data = [
-            Recharge::ORDER_NO => $this->get(self::ORDER_NO, 0),
-            Recharge::AMOUNT => $this->getAmount(),
-            Recharge::CHANNEL => $this->getChannel(),
-            Recharge::CURRENCY => $this->getCurrency(),
-            Recharge::CLIENT_IP => $this->get(self::CLIENT_IP),
-            Recharge::SUBJECT => $this->get(self::SUBJECT),
-            Recharge::BODY => $this->get(self::BODY),
-            Recharge::APP_ID => current_app_id(),
+            Charge::USER_ID => (current_user())->{User::ID},
+            Charge::ORDER_NO => $this->get(self::ORDER_NO, 0),
+            Charge::AMOUNT => $this->getAmount(),
+            Charge::CHANNEL => $this->getChannel(),
+            Charge::CURRENCY => $this->getCurrency(),
+            Charge::CLIENT_IP => $this->get(self::CLIENT_IP),
+            Charge::SUBJECT => $this->get(self::SUBJECT),
+            Charge::BODY => $this->get(self::BODY),
+            Charge::APP_ID => current_app_id(),
         ];
 
         if (config('app.debug') == true && config('app.env') !== 'production') {
-            $data[Recharge::ORDER_NO] = date('YmdHis') . mt_rand(1000, 9999);
+            $data[Charge::ORDER_NO] = date('YmdHis') . mt_rand(1000, 9999);
         }
 
         return $data;

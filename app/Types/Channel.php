@@ -14,7 +14,7 @@ class Channel
     const QPAY_NATIVE = 'QPay_Native'; // QQ 钱包原生扫码支付
     const QPAY_MICROPAY = 'QPay_MicroPay'; // QQ 钱包付款码支付
 
-    const WECHATPAY = '微信支付通用网关'; // 微信 App 支付
+    const WECHATPAY = 'WechatPay'; // 微信支付通用网关
     const WECHATPAY_APP = 'WechatPay_App'; // 微信 App 支付
     const WECHATPAY_JS = 'WechatPay_Js'; // 微信网页、公众号、小程序支付网关
     const WECHATPAY_NATIVE = 'WechatPay_Native'; // 微信 Native 支付

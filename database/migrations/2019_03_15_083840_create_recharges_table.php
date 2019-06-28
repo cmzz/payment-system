@@ -21,6 +21,7 @@ class CreateRechargesTable extends Migration
             $table->string('buyer_id')->nullable()->comment('客户端的买家id');
             $table->string('buyer_openid')->nullable()->comment('客户端的买家openid，微信支付方式时必填');
             $table->string('order_no')->nullable()->comment('客户端系统订单号');
+
             $table->string('client_ip')->nullable()->comment('发起支付请求客户端的 IP 地址，格式为 IPv4 整型，如 127.0.0.1');
             $table->string('subject')->nullable()->comment('商品名称');
             $table->string('body')->nullable()->comment('商品描述信息，该参数最长为 200 个 Unicode 字符。');

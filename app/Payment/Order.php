@@ -6,9 +6,8 @@ namespace App\Payment;
 use App\Events\OrderPaidEvent;
 use App\Exceptions\NotifyDataErrorException;
 use App\Exceptions\TradeNoUsedException;
-use App\Models\App;
-use App\Models\Recharge;
-use App\Types\Channel;
+use App\Models\Charge;
+use App\Sn;
 use App\Types\OrderPayStatus;
 use App\Types\OrderStatus;
 use Carbon\Carbon;
@@ -24,24 +23,23 @@ class Order
      */
     public function create(array $data)
     {
+        $data[Charge::CHARGE_NO] = Sn::generateOrderSn();
+
         // 检查订单是否存在
-        $recharge = Recharge::where(Recharge::APP_ID, data_get($data, Recharge::APP_ID))
-            ->where(Recharge::ORDER_NO, data_get($data, Recharge::ORDER_NO))
+        $charge = Charge::where(Charge::APP_ID, data_get($data, Charge::APP_ID))
+            ->where(Charge::ORDER_NO, data_get($data, Charge::ORDER_NO))
             ->first();
 
-        if ($recharge && $recharge->id) {
+        if ($charge && $charge->id) {
             throw new TradeNoUsedException();
         } else {
-            $data[Recharge::PAID] = OrderPayStatus::WAIT_PAY;
-            $data[Recharge::STATUS] = OrderStatus::WAIT_PAY;
+            $data[Charge::PAID] = OrderPayStatus::WAIT_PAY;
+            $data[Charge::STATUS] = OrderStatus::WAIT_PAY;
 
-            $app = current_app();
-            $data[Recharge::USER_ID] = $app->{App::USER_ID};
-
-            $recharge = Recharge::create($data);
+            $charge = Charge::create($data);
         }
 
-        return $recharge;
+        return $charge;
     }
 
     public function get()
@@ -59,19 +57,19 @@ class Order
 
     }
 
-    public function paid(Recharge $recharge, array $params)
+    public function paid(Charge $charge, array $params)
     {
-        DB::transaction(function () use ($recharge, $params) {
+        DB::transaction(function () use ($charge, $params) {
             $t = new Carbon();
 
             $transactionNo = 0;
-            if (Channel::isAlipay($recharge->{Recharge::CHANNEL})) {
+            if ($charge->isAlipay()) {
                 $transactionNo = data_get($params, 'trade_no');
             }
-            if (Channel::isWechatPay($recharge->{Recharge::CHANNEL})) {
+            if ($charge->isWechatPay()) {
                 $transactionNo = data_get($params, 'transaction_id');
             }
-            if (Channel::isQpay($recharge->{Recharge::CHANNEL})) {
+            if ($charge->isQpay()) {
                 $transactionNo = data_get($params, 'transaction_id');
             }
 
@@ -79,29 +77,28 @@ class Order
                 throw new NotifyDataErrorException();
             }
 
-            $recharge = Recharge::where(Recharge::ID, $recharge->{Recharge::ID})
-                ->lockForUpdate()
-                ->first();
+            $charge = Charge::where(Charge::ID, $charge->id)->lockForUpdate()->first();
 
-            if ($recharge->{Recharge::PAID} != OrderPayStatus::PAID) {
-                DB::table('recharges')->where(Recharge::ID, $recharge->{Recharge::ID})
+            if ($charge->{Charge::PAID} != OrderPayStatus::PAID) {
+                DB::table('charges')
+                    ->where(Charge::ID, $charge->{Charge::ID})
                     ->update([
-                        Recharge::TRANSACTION_NO => $transactionNo,
-                        Recharge::TRANSACTION_ORG_DATA => \GuzzleHttp\json_encode($params),
-                        Recharge::PAID => OrderPayStatus::PAID,
-                        Recharge::PAY_AT => $t->toDateTimeString(),
-                        Recharge::STATUS => OrderStatus::PAID,
-                        Recharge::BUYER_ID => data_get($params, 'buyer_id', ''),
-                        Recharge::UPDATED_AT => $t->toDateTimeString(),
+                        Charge::TRANSACTION_NO => $transactionNo,
+                        Charge::TRANSACTION_ORG_DATA => \GuzzleHttp\json_encode($params),
+                        Charge::PAID => OrderPayStatus::PAID,
+                        Charge::PAY_AT => $t,
+                        Charge::STATUS => OrderStatus::PAID,
+                        Charge::UPDATED_AT => $t,
+                        Charge::BUYER_ID => data_get($params, 'buyer_id', ''),
                     ]);
 
-                $recharge->refresh();
+                $charge->refresh();
 
                 Log::channel('order')->info('支付成功, 订单状态更新成功', [
-                    'recharge' => $recharge
+                    'charge' => $charge
                 ]);
 
-                event(new OrderPaidEvent($recharge->{Recharge::ID}));
+                event(new OrderPaidEvent($charge->{Charge::ID}));
             }
         });
     }
