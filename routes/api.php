@@ -10,7 +10,6 @@ Route::any('/order/notify/alipay', 'NotifyController@alipay')->name('notify_url.
 Route::any('/order/notify/qpay', 'NotifyController@qqWallet')->name('notify_url.qpay');
 Route::any('/order/notify/wechatpay', 'NotifyController@wechatPay')->name('notify_url.wechatpay');
 
-
 Route::group(['prefix' => 'v1'], function () {
     Route::middleware(['app'])->group(function () {
         // 下单
