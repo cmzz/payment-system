@@ -143,19 +143,34 @@ class Gateway
     }
 
     /**
-     * @param array $params
+     * @param $params
      * @return Response
      * @throws \Exception
      */
-    public function notify(array $params): Response
+    public function notify($params): Response
     {
-        $request = $this->gateway->completePurchase();
-        $request->setParams($params);
+        // 支付宝
+        if ($this->charge->isAlipay()) {
+            $request = $this->gateway->completePurchase();
+            $request->setParams($params);
+        }
+
+        // 财付通
+        if ($this->charge->isWechatPay() || $this->charge->isQpay()) {
+            $request = $this->gateway->completePurchase([
+                'request_params' => $params
+            ]);
+        }
 
         try {
             $response = $request->send();
 
             if ($response->isPaid()) {
+                if (!$this->charge->isAlipay()) {
+                    $params = $response->getRequestData();
+                    \Log::channel('order')->info('get params', $params);
+                }
+
                 (new Order)->paid($this->charge, $params);
 
                 return response('success', 200)
