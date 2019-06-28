@@ -8,11 +8,12 @@ use App\Payment\Gateway;
 use App\Payment\TradeNo;
 use function GuzzleHttp\Psr7\build_query;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 
 class NotifyController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         \Log::channel('order')->info('订单异步通知', [
             'params' => $request->all()
