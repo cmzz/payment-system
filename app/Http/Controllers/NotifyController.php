@@ -30,7 +30,7 @@ class NotifyController extends Controller
             }
         }
 
-        response('fail', 200)
+        return response('fail', 200)
             ->header('Content-Type', 'text/plain');
     }
 
@@ -73,7 +73,7 @@ class NotifyController extends Controller
 
         preg_match('/<out_trade_no><\!\[CDATA\[(.*)\]\]><\/out_trade_no>/i', $params, $match);
         $chargeNo = data_get($match, 1);
-        Log::info($chargeNo);
+        \Log::channel('order')->info($chargeNo);
 
         return $this->doNotify($chargeNo, $params);
     }

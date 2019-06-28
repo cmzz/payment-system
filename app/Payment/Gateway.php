@@ -159,7 +159,7 @@ class Gateway
             if ($response->isPaid()) {
                 if (!$this->charge->isAlipay()) {
                     $params = $response->getRequestData();
-                    \Log::info('get qpay params', $params);
+                    \Log::channel('order')->info('get params', $params);
                 }
 
                 (new Order)->paid($this->charge, $params);
