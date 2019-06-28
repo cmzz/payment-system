@@ -94,12 +94,11 @@ class Order
 
                 $charge->refresh();
 
-                Log::channel('order')->info('支付成功, 订单状态更新成功', [
+                \Log::channel('order')->info('支付成功, 订单状态更新成功', [
                     'charge' => $charge
                 ]);
               
-//                event(new OrderPaidEvent($charge->{Charge::ID}));
-
+                event(new OrderPaidEvent($charge->{Charge::ID}));
             }
         });
     }
