@@ -83,13 +83,13 @@ class Order
                 DB::table('charges')
                     ->where(Charge::ID, $charge->{Charge::ID})
                     ->update([
-                        $charge->{Charge::TRANSACTION_NO} => $transactionNo,
-                        $charge->{Charge::TRANSACTION_ORG_DATA} => \GuzzleHttp\json_encode($params),
-                        $charge->{Charge::PAID} => OrderPayStatus::PAID,
-                        $charge->{Charge::PAY_AT} => $t,
-                        $charge->{Charge::STATUS} => OrderStatus::PAID,
-                        $charge->{Charge::UPDATED_AT} => $t,
-                        $charge->{Charge::BUYER_ID} => data_get($params, 'buyer_id', ''),
+                        Charge::TRANSACTION_NO => $transactionNo,
+                        Charge::TRANSACTION_ORG_DATA => \GuzzleHttp\json_encode($params),
+                        Charge::PAID => OrderPayStatus::PAID,
+                        Charge::PAY_AT => $t,
+                        Charge::STATUS => OrderStatus::PAID,
+                        Charge::UPDATED_AT => $t,
+                        Charge::BUYER_ID => data_get($params, 'buyer_id', ''),
                     ]);
 
                 $charge->refresh();
