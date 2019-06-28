@@ -98,7 +98,7 @@ class Order
                     'charge' => $charge
                 ]);
 
-//                event(new OrderPaidEvent($charge->{Charge::ID}));
+                event(new OrderPaidEvent($charge->{Charge::ID}));
             }
         });
     }
