@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 
 class NotifyController extends Controller
 {
-    public function index(Request $request): Response
+    public function alipay(Request $request): Response
     {
         \Log::channel('order')->info('订单异步通知', [
             'params' => $request->all()
@@ -37,5 +37,35 @@ class NotifyController extends Controller
                     ->header('Content-Type', 'text/plain');
             }
         }
+    }
+
+    /**
+     * qq钱包
+     */
+    public function qqWallet()
+    {
+        return $this->tenPay();
+    }
+
+    /**
+     * 微信支付
+     */
+    public function wechatPay()
+    {
+        return $this->tenPay();
+    }
+
+    /**
+     * 财付通支付(适用于QQ钱包和微信支付)
+     */
+    private function tenPay()
+    {
+        $params = file_get_contents('php://input');
+        \Log::channel('order')->info('财付通异步通知原始请求参数', [
+            'params' => $params
+        ]);
+
+        $chargeNo = data_get($params, 'out_trade_no');
+        Log::info($chargeNo);
     }
 }
