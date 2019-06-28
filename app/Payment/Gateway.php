@@ -143,11 +143,11 @@ class Gateway
     }
 
     /**
-     * @param array $params
+     * @param $params
      * @return Response
      * @throws \Exception
      */
-    public function notify(array $params): Response
+    public function notify($params): Response
     {
         $request = $this->gateway->completePurchase();
         $request->setParams($params);

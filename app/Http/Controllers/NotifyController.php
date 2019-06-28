@@ -13,14 +13,8 @@ use Illuminate\Support\Facades\Log;
 
 class NotifyController extends Controller
 {
-    public function alipay(Request $request): Response
-    {
-        \Log::channel('order')->info('订单异步通知', [
-            'params' => $request->all()
-        ]);
 
-        $chargeNo = $request->get('out_trade_no');
-
+    private function doNotify($chargeNo, $params) {
         if ($chargeNo) {
             try {
                 $charge = Charge::where(Charge::CHARGE_NO, $chargeNo)
@@ -30,13 +24,25 @@ class NotifyController extends Controller
                     'charge' => $charge
                 ]);
 
-                return (new Gateway())->setCharge($charge)->notify($request->all());
+                return (new Gateway())->setCharge($charge)->notify($params);
             } catch (\Exception $e) {
                 Log::error($e->getTraceAsString());
-                response('fail', 200)
-                    ->header('Content-Type', 'text/plain');
             }
         }
+
+        response('fail', 200)
+            ->header('Content-Type', 'text/plain');
+    }
+
+    public function alipay(Request $request): Response
+    {
+        \Log::channel('order')->info('订单异步通知', [
+            'params' => $request->all()
+        ]);
+
+        $chargeNo = $request->get('out_trade_no');
+
+        return $this->doNotify($chargeNo, $request->all());
     }
 
     /**
@@ -65,7 +71,10 @@ class NotifyController extends Controller
             'params' => $params
         ]);
 
-        $chargeNo = data_get($params, 'out_trade_no');
+        preg_match('/<out_trade_no><\!\[CDATA\[(.*)\]\]><\/out_trade_no>/i', $params, $match);
+        $chargeNo = data_get($match, 1);
         Log::info($chargeNo);
+
+        return $this->doNotify($chargeNo, $params);
     }
 }
