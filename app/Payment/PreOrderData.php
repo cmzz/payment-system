@@ -30,7 +30,7 @@ class PreOrderData
                 'total_fee' => $charge->{Charge::AMOUNT},
                 'spbill_create_ip' => $charge->{Charge::CLIENT_IP},
                 'fee_type' => strtoupper($charge->{Charge::CURRENCY}),
-                'notify_url' => route('notify_url')
+                'notify_url' => route('notify_url.wechatpay')
             ];
         }
 
@@ -42,7 +42,7 @@ class PreOrderData
                 'total_fee' => $charge->{Charge::AMOUNT},
                 'spbill_create_ip' => $charge->{Charge::CLIENT_IP},
                 'fee_type' => strtoupper($charge->{Charge::CURRENCY}),
-                'notify_url' => route('notify_url')
+                'notify_url' => route('notify_url.qpay')
             ];
         }
     }
