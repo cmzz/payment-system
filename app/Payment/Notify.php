@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Payment;
 
-
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Client;
 
 class Notify
@@ -79,7 +79,15 @@ class Notify
                 return true;
             }
         }
-        catch (\Exception $exception) {
+        catch (RequestException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                \Log::channel('order')->error('notify response', [
+                    'status_code' => $response->getStatusCode(),
+                    'body' => $response->getBody()
+                ]);
+            }
+
             return false;
         }
 
