@@ -16,3 +16,10 @@ function current_app(): \App\Models\App
 {
     return session(Keys::SES_APP);
 }
+
+function current_user(): \App\Models\User
+{
+    $app = current_app();
+
+    return $app->user;
+}

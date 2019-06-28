@@ -7,7 +7,7 @@ Route::any('/order/callback', 'CallbackController@index')->name('return_url');
 
 // 异步通知
 Route::any('/order/notify/alipay', 'NotifyController@alipay')->name('notify_url.alipay');
-Route::any('/order/notify/qpay', 'NotifyController@qpay')->name('notify_url.qpay');
+Route::any('/order/notify/qpay', 'NotifyController@qqWallet')->name('notify_url.qpay');
 Route::any('/order/notify/wechatpay', 'NotifyController@wechatPay')->name('notify_url.wechatpay');
 
 

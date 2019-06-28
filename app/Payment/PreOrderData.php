@@ -25,24 +25,22 @@ class PreOrderData
         if ($charge->isWechatPay()) {
             return $data = [
                 'body' => $charge->{Charge::BODY},
-                'out_trade_no' => TradeNo::encode($charge->{Charge::APP_ID}, $charge->{Charge::ORDER_NO},
-                    $charge->{Charge::ID}),
+                'out_trade_no' => $charge->{Charge::CHARGE_NO},
                 'total_fee' => $charge->{Charge::AMOUNT},
                 'spbill_create_ip' => $charge->{Charge::CLIENT_IP},
                 'fee_type' => strtoupper($charge->{Charge::CURRENCY}),
-                'notify_url' => route('notify_url')
+                'notify_url' => route('notify_url.wechatpay')
             ];
         }
 
         if ($charge->isQpay()) {
             return $data = [
                 'body' => $charge->{Charge::SUBJECT},
-                'out_trade_no' => TradeNo::encode($charge->{Charge::APP_ID}, $charge->{Charge::ORDER_NO},
-                    $charge->{Charge::ID}),
+                'out_trade_no' => $charge->{Charge::CHARGE_NO},
                 'total_fee' => $charge->{Charge::AMOUNT},
                 'spbill_create_ip' => $charge->{Charge::CLIENT_IP},
                 'fee_type' => strtoupper($charge->{Charge::CURRENCY}),
-                'notify_url' => route('notify_url')
+                'notify_url' => route('notify_url.qpay')
             ];
         }
     }

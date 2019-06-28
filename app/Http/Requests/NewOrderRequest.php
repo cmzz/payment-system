@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 
 use App\Exceptions\InvalidArgumentException;
 use App\Models\Charge;
+use App\Models\User;
 use App\Types\Channel;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -77,6 +78,7 @@ class NewOrderRequest extends FormRequest
     public function allParams()
     {
         $data = [
+            Charge::USER_ID => (current_user())->{User::ID},
             Charge::ORDER_NO => $this->get(self::ORDER_NO, 0),
             Charge::AMOUNT => $this->getAmount(),
             Charge::CHANNEL => $this->getChannel(),

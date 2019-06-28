@@ -20,8 +20,8 @@ class CallbackController extends Controller
      */
     public function index(Request $request)
     {
-        $orderNo = $request->get('out_trade_no');
-        if (!$orderNo) {
+        $chargeNo = $request->get('out_trade_no');
+        if (!$chargeNo) {
             Log::channel('order')->error('同步回调参数中没有 out_trade_no', [
                 'params' => $request->all()
             ]);
@@ -29,12 +29,9 @@ class CallbackController extends Controller
             throw new InvalidArgumentException();
         }
 
-        $orderInfo = TradeNo::decode($orderNo);
-
-        if ($chargeId = data_get($orderInfo, 2)) {
+        if ($chargeNo) {
             try {
-                $charge = Charge::where(Charge::APP_ID, data_get($orderInfo, 0))
-                    ->where(Charge::ID, $chargeId)
+                $charge = Charge::where(Charge::CHARGE_NO, $chargeNo)
                     ->firstOrFail();
 
             } catch (ModelNotFoundException $e) {
