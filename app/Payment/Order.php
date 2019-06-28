@@ -77,7 +77,9 @@ class Order
                 throw new NotifyDataErrorException();
             }
 
-            $charge = Charge::where(Charge::ID, $charge->id)->lockForUpdate()->get();
+            $charge->lockForUpdate()->refresh();
+
+//            $charge = Charge::where(Charge::ID, $charge->id)->lockForUpdate()->first();
             if ($charge->{Charge::PAID} != OrderPayStatus::PAID) {
                 DB::tables('charges')->where(Charge::ID, $charge->{Charge::ID})
                     ->update([

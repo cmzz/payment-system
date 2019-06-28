@@ -160,7 +160,7 @@ class Gateway
                     ->header('Content-Type', 'text/plain');
             }
         } catch (\Exception $e) {
-            \Log::channel('order')->error('notify error:'. $e->getMessage());
+            \Log::channel('order')->error('notify error: '. $e->getMessage());
 
             return response('fail', 200)
                 ->header('Content-Type', 'text/plain');
