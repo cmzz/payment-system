@@ -47,14 +47,18 @@ class SendOrderPaidNotify
             $data = $charge->buildNotifyData();
             \Log::channel('order')->error('notify data', $data);
 
-            \Log::channel('order')->error('notify url', $app->{App::NOTIFY_URL});
+            \Log::channel('order')->error('notify url', [
+                'url' => $app->{App::NOTIFY_URL}
+            ]);
 
             $notify->setHttpHeaders([
                 'x-app-id' => $app->{App::APP_KEY}
             ]);
             $ret = $notify->send($app->{App::NOTIFY_URL}, $data, $app->{App::APP_SECRET});
 
-            \Log::channel('order')->error('notify ret', $ret);
+            \Log::channel('order')->error('notify ret', [
+                'ret' => $ret
+            ]);
 
             if ($ret) {
                 return;
