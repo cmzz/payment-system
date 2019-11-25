@@ -73,7 +73,8 @@ class Notify
             $response = $client->request($method, $url, [
                 'headers' => $this->headers,
                 'json' => $data,
-                'verify' => resource_path('cacert.pem')
+                'verify' => false,
+//                'verify' => resource_path('cacert.pem')
             ]);
 
             if ($response && $response->getStatusCode() === 200) {
