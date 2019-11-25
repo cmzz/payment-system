@@ -11,6 +11,7 @@ use App\Payment\Notify;
 use App\Types\OrderStatus;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Log;
 
 class SendOrderPaidNotify
 {
@@ -44,11 +45,16 @@ class SendOrderPaidNotify
         $notify = new Notify();
         try {
             $data = $charge->buildNotifyData();
+            \Log::channel('order')->error('notify data', $data);
+
+            \Log::channel('order')->error('notify url', $app->{App::NOTIFY_URL});
 
             $notify->setHttpHeaders([
                 'x-app-id' => $app->{App::APP_KEY}
             ]);
             $ret = $notify->send($app->{App::NOTIFY_URL}, $data, $app->{App::APP_SECRET});
+
+            \Log::channel('order')->error('notify ret', $ret);
 
             if ($ret) {
                 return;
