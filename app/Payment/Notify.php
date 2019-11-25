@@ -86,6 +86,8 @@ class Notify
                     'status_code' => $response->getStatusCode(),
                     'body' => $response->getBody()
                 ]);
+            } else {
+                \Log::channel('order')->error($e);
             }
 
             return false;

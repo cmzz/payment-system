@@ -45,9 +45,9 @@ class SendOrderPaidNotify
         $notify = new Notify();
         try {
             $data = $charge->buildNotifyData();
-            \Log::channel('order')->error('notify data', $data);
+            \Log::channel('order')->info('notify data', $data);
 
-            \Log::channel('order')->error('notify url', [
+            \Log::channel('order')->info('notify url', [
                 'url' => $app->{App::NOTIFY_URL}
             ]);
 
@@ -56,7 +56,7 @@ class SendOrderPaidNotify
             ]);
             $ret = $notify->send($app->{App::NOTIFY_URL}, $data, $app->{App::APP_SECRET});
 
-            \Log::channel('order')->error('notify ret', [
+            \Log::channel('order')->info('notify ret', [
                 'ret' => $ret
             ]);
 
