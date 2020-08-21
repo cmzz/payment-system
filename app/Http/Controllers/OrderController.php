@@ -36,7 +36,7 @@ class OrderController extends Controller
         \Log::info('receive request', [
             'random' => mt_rand(10000, 999999),
             'time' => time(),
-            'params' => $data,
+            'params' => $request->allParams(),
             'headers' => $request->headers
         ]);
 
