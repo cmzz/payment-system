@@ -35,7 +35,8 @@ class OrderController extends Controller
     {
         $data = $request->allParams();
         \Log::channel('order')->info('创建订单', [
-            'params' => $data
+            'params' => $data,
+            'headers' => $request->headers
         ]);
 
         $charge = $this->order->create($data);

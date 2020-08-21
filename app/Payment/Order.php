@@ -26,8 +26,8 @@ class Order
     {
         $data[Charge::CHARGE_NO] = Sn::generateOrderSn();
 
-        // 检查订单是否存在
         try {
+            // 检查订单是否存在
             Charge::where(Charge::APP_ID, data_get($data, Charge::APP_ID))
                 ->where(Charge::ORDER_NO, data_get($data, Charge::ORDER_NO))
                 ->firstOrFail();
