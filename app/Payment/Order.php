@@ -11,6 +11,7 @@ use App\Sn;
 use App\Types\OrderPayStatus;
 use App\Types\OrderStatus;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -26,13 +27,12 @@ class Order
         $data[Charge::CHARGE_NO] = Sn::generateOrderSn();
 
         // 检查订单是否存在
-        $charge = Charge::where(Charge::APP_ID, data_get($data, Charge::APP_ID))
-            ->where(Charge::ORDER_NO, data_get($data, Charge::ORDER_NO))
-            ->first();
-
-        if ($charge && $charge->id) {
+        try {
+            Charge::where(Charge::APP_ID, data_get($data, Charge::APP_ID))
+                ->where(Charge::ORDER_NO, data_get($data, Charge::ORDER_NO))
+                ->firstOrFail();
             throw new TradeNoUsedException();
-        } else {
+        } catch (ModelNotFoundException $e) {
             $data[Charge::PAID] = OrderPayStatus::WAIT_PAY;
             $data[Charge::STATUS] = OrderStatus::WAIT_PAY;
 
@@ -97,7 +97,7 @@ class Order
                 Log::channel('order')->info('支付成功, 订单状态更新成功', [
                     'charge' => $charge
                 ]);
-              
+
                 event(new OrderPaidEvent($charge->{Charge::ID}));
             }
         });
