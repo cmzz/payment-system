@@ -15,6 +15,9 @@ Route::group(['prefix' => 'v1'], function () {
         // 下单
         Route::post('/order', 'OrderController@store');
 
+        // 退款
+        Route::post('/order/{orderId}/refund', 'OrderController@refund');
+
         // 查询
         Route::get('/order/query', 'OrderController@query');
     });

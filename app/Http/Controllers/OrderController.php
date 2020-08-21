@@ -11,6 +11,7 @@ use App\Models\Charge;
 use App\Payment\Gateway;
 use App\Payment\Order;
 use App\Response;
+use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
@@ -63,5 +64,10 @@ class OrderController extends Controller
     {
 
         return Response::success();
+    }
+
+    public function refund(Request $request, $orderId)
+    {
+
     }
 }
