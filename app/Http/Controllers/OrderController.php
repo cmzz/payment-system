@@ -33,6 +33,13 @@ class OrderController extends Controller
      */
     public function store(NewOrderRequest $request)
     {
+        \Log::info('receive request', [
+            'random' => mt_rand(10000, 999999),
+            'time' => time(),
+            'params' => $data,
+            'headers' => $request->headers
+        ]);
+
         $data = $request->allParams();
         \Log::channel('order')->info('创建订单', [
             'params' => $data,
