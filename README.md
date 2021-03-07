@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/cmzz/payment-system.svg?branch=master)](https://travis-ci.com/cmzz/payment-system)
 ![](https://img.shields.io/swagger/valid/2.0/https/raw.githubusercontent.com/OAI/OpenAPI-Specification/master/examples/v2.0/json/petstore-expanded.json.svg)
-![](https://img.shields.io/badge/php-7.2-blue.svg)
+![](https://img.shields.io/badge/php-7.1-blue.svg)
 ![](https://img.shields.io/badge/mysql-%3E%3D5.7-blue.svg)
 ![](https://img.shields.io/badge/laravel-5.8-blue.svg)
 
