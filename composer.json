@@ -1,7 +1,7 @@
 {
     "name": "cmzz/payment-system",
     "type": "project",
-    "description": "开发即用的支付系统",
+    "description": "开箱即用的支付系统",
     "keywords": [
         "payment",
         "omnipay",
@@ -9,7 +9,11 @@
         "wechatpay",
         "wechat pay",
         "qpay",
-        "payment-system"
+        "payment-system",
+        "支付宝",
+        "微信支付",
+        "财付通",
+        "QQ钱包支付"
     ],
     "license": "MIT",
     "require": {
