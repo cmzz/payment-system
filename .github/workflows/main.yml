@@ -1,0 +1,90 @@
+name: build docker image
+
+on:
+  push:
+    branches:
+      - main
+      - development
+  pull_request:
+    branches:
+      - main
+      - master
+      - development
+  release:
+    types: [published]
+
+env:
+  DOCKER_REGISTRY: payment-system
+
+  FPM_IMAGE_NAME: payment-system-fpm
+  NGINX_IMAGE_NAME: payment-system-nginx
+  CLI_IMAGE_NAME: payment-system-cli
+
+  VERSION: ''
+
+  FINAL_FPM_IMAGE_ID: ''
+  FINAL_NGINX_IMAGE_ID: ''
+  FINAL_CLI_IMAGE_ID: ''
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build image
+        run: |
+          docker build . --file Dockerfile --target fpm --tag $FPM_IMAGE_NAME
+          docker build . --file Dockerfile --target cli --tag $CLI_IMAGE_NAME
+          docker build . --file Dockerfile --target web --tag $NGINX_IMAGE_NAME
+
+      - name: Log into registry
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          echo "${{ secrets.DOCKER_REGISTRY_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_REGISTRY_USERNAME }} --password-stdin
+
+      - name: Push image to docker hub
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "$default-branch" ] && VERSION=latest
+
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+
+          FINAL_FPM_IMAGE_ID=$DOCKER_REGISTRY/$FPM_IMAGE_NAME
+          FINAL_CLI_IMAGE_ID=$DOCKER_REGISTRY/$CLI_IMAGE_NAME
+          FINAL_NGINX_IMAGE_ID=$DOCKER_REGISTRY/$NGINX_IMAGE_NAME
+
+          echo $FINAL_FPM_IMAGE_ID
+          echo $FINAL_CLI_IMAGE_ID
+          echo $FINAL_NGINX_IMAGE_ID
+
+          docker tag $FPM_IMAGE_NAME $FINAL_FPM_IMAGE_ID:$VERSION
+          docker tag $CLI_IMAGE_NAME $FINAL_CLI_IMAGE_ID:$VERSION
+          docker tag $NGINX_IMAGE_NAME $FINAL_NGINX_IMAGE_ID:$VERSION
+
+          docker push $FINAL_FPM_IMAGE_ID:$VERSION
+          docker push $FINAL_NGINX_IMAGE_ID:$VERSION
+          docker push $FINAL_CLI_IMAGE_ID:$VERSION
+
+          docker tag $FPM_IMAGE_NAME $FINAL_FPM_IMAGE_ID:latest
+          docker tag $CLI_IMAGE_NAME $FINAL_CLI_IMAGE_ID:latest
+          docker tag $NGINX_IMAGE_NAME $FINAL_NGINX_IMAGE_ID:latest
+
+          docker push $FINAL_FPM_IMAGE_ID:latest
+          docker push $FINAL_NGINX_IMAGE_ID:latest
+          docker push $FINAL_CLI_IMAGE_ID:latest
+
+      - name: Trigger off image sync
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          curl -H "Accept: application/vnd.github.everest-preview+json" \
+              -H "Authorization: token ${{ secrets.IMAGE_SYNCER_WEBHOOK_TOKEN }}" \
+              --request POST \
+              --data '{"event_type": "sync", "client_payload": { "from": "notifier"}}' \
+              https://api.github.com/repos/${{ secrets.IMAGE_SYNCER_GITHUB_USERNAME }}/${{ secrets.IMAGE_SYNCER_REPOSITORY }}/dispatches
