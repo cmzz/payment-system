@@ -15,7 +15,7 @@ on:
     types: [published]
 
 env:
-  DOCKER_REGISTRY: payment-system
+  DOCKER_REGISTRY: litsoftware
 
   FPM_IMAGE_NAME: payment-system-fpm
   NGINX_IMAGE_NAME: payment-system-nginx
