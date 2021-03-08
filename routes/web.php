@@ -11,8 +11,8 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::any('/', function () {
+    return 'ok';
 });
 
 Auth::routes();
