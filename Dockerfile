@@ -3,7 +3,7 @@
 # build for laravel web app
 #
 ############################
-FROM litsoftware/php:7.1-fpm AS fpm
+FROM litsoftware/php:7.4-fpm AS fpm
 
 WORKDIR /var/www
 
@@ -20,7 +20,7 @@ RUN composer -V \
 # build for laravel cli
 #
 ############################
-FROM litsoftware/php:7.1-cli AS cli
+FROM litsoftware/php:7.4-cli AS cli
 
 WORKDIR /var/www
 
