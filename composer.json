@@ -32,7 +32,6 @@
         "rmccue/requests": "^1.7"
     },
     "require-dev": {
-        "barryvdh/laravel-ide-helper": "^2.6",
         "beyondcode/laravel-dump-server": "^1.0",
         "doctrine/dbal": "^2.9",
         "filp/whoops": "^2.0",
@@ -82,10 +81,7 @@
             "@php artisan key:generate --ansi"
         ],
         "post-update-cmd": [
-            "Illuminate\\Foundation\\ComposerScripts::postUpdate",
-            "php artisan ide-helper:generate",
-            "php artisan ide-helper:meta",
-            "php artisan ide-helper:eloquent"
+            "Illuminate\\Foundation\\ComposerScripts::postUpdate"
         ]
     },
     "repositories": {
