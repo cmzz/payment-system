@@ -11,9 +11,7 @@
 |
 */
 
-Route::any('/', function () {
-    return 'ok';
-});
+Route::any('/', 'Controller@Controller');
 
 Auth::routes();
 
