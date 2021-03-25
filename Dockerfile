@@ -38,6 +38,7 @@ CMD ["/usr/local/bin/start"]
 ############################
 FROM nginx:latest AS web
 
+RUN addgroup nobody tty
 WORKDIR /var/www
 
 COPY --from=fpm /var/www/.  /var/www
