@@ -87,5 +87,5 @@ jobs:
           curl -H "Accept: application/vnd.github.everest-preview+json" \
               -H "Authorization: token ${{ secrets.IMAGE_SYNCER_WEBHOOK_TOKEN }}" \
               --request POST \
-              --data '{"event_type": "sync", "client_payload": { "from": "notifier"}}' \
+              --data '{"event_type": "payment-system", "client_payload": { "from": "notifier"}}' \
               https://api.github.com/repos/${{ secrets.IMAGE_SYNCER_GITHUB_USERNAME }}/${{ secrets.IMAGE_SYNCER_REPOSITORY }}/dispatches
