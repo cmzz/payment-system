@@ -36,9 +36,8 @@ CMD ["/usr/local/bin/start"]
 # build for nginx
 #
 ############################
-FROM nginx:latest AS web
+FROM litsoftware/nginx:latest AS web
 
-RUN addgroup nobody tty
 WORKDIR /var/www
 
 COPY --from=fpm /var/www/.  /var/www
