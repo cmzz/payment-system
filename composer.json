@@ -23,7 +23,7 @@
         "ignited/laravel-omnipay": "3.*",
         "kra8/laravel-snowflake": "^1.1",
         "kuangjy/omnipay-qpay": "^3.0",
-        "laravel/framework": "5.8.*",
+        "laravel/framework": "6.20.*",
         "laravel/tinker": "^1.0",
         "lokielse/omnipay-alipay": "^3.0",
         "lokielse/omnipay-unionpay": "^3",
