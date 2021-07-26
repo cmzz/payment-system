@@ -91,11 +91,12 @@ return [
         ],
 
         'order' => [
-            'driver' => 'daily',
-            'path' => storage_path('logs/order.log'),
-            'tap' => [App\Logging\OrderLogFormatter::class],
-            'level' => 'info',
-            'days' => 1,
+            'driver' => 'monolog',
+            'handler' => StreamHandler::class,
+            'formatter' => env('LOG_STDERR_FORMATTER'),
+            'with' => [
+                'stream' => 'php://stderr',
+            ],
         ]
     ],
 
